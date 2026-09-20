@@ -74,7 +74,7 @@ Use an LLM (Claude) for the layer around the solver, where fuzziness is fine and
 - Drafting and conducting the two-way texting conversation with staff (offer, confirm, decline,
   counter).
 - Drafting bonus-offer messages and manager summaries.
-- Explaining *why* the solver made a given assignment, in plain language.
+- Explaining _why_ the solver made a given assignment, in plain language.
 
 ## Escalation ladder
 
