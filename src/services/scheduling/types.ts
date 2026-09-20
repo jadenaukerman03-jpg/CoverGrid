@@ -42,6 +42,8 @@ export interface RankCandidatesInput {
   existingAssignments: AssignedShift[];
   /** Employees already assigned to this exact shift's unit + date (for conflict-pair checks). */
   coAssignedEmployeeIds: string[];
+  /** Employees who already called off this exact shift instance — never re-offer it to them. */
+  calledOffEmployeeIds?: string[];
   now?: string;
   policy?: Partial<RankingPolicy>;
 }
@@ -82,7 +84,8 @@ export type ExclusionReason =
   | "double_booked"
   | "insufficient_rest"
   | "not_home_unit_and_not_float_eligible"
-  | "weekly_hours_exceeded";
+  | "weekly_hours_exceeded"
+  | "called_off_this_shift";
 
 export interface ExcludedCandidate {
   employee: Employee;

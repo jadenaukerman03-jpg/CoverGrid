@@ -52,6 +52,17 @@ describe("rankCandidates - hard exclusions", () => {
     expect(result.excluded[0]?.reason).toBe("inactive");
   });
 
+  it("excludes an employee who already called off this exact shift", () => {
+    const result = rankCandidates({
+      shift: makeShift(),
+      employees: [makeEmployee({ id: "emp-1" })],
+      existingAssignments: [],
+      coAssignedEmployeeIds: [],
+      calledOffEmployeeIds: ["emp-1"],
+    });
+    expect(result.excluded[0]?.reason).toBe("called_off_this_shift");
+  });
+
   it("excludes role mismatches", () => {
     const result = rankCandidates({
       shift: makeShift({ roleId: ROLE_RN }),

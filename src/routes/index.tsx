@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/")({
   component: HomePage,
@@ -12,6 +12,12 @@ function HomePage() {
         Scheduling that runs itself. This is the project skeleton — the schedule grid, call-off
         outreach, and attendance points modules land in Phase 1.
       </p>
+      <Link
+        to="/schedule"
+        className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+      >
+        Open schedule board
+      </Link>
     </div>
   );
 }

@@ -50,6 +50,15 @@ export function rankCandidates(input: RankCandidatesInput): RankCandidatesResult
       continue;
     }
 
+    if (input.calledOffEmployeeIds?.includes(employee.id)) {
+      exclude(
+        employee,
+        "called_off_this_shift",
+        "This employee already called off this exact shift.",
+      );
+      continue;
+    }
+
     if (employee.primaryRoleId !== input.shift.roleId) {
       exclude(
         employee,
