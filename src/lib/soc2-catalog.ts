@@ -4,7 +4,7 @@ export type Vendor = { name: string; purpose: string; data: string; region: stri
 
 export const VENDORS: Vendor[] = [
   {
-    name: "Lovable Cloud (Supabase)",
+    name: "Supabase",
     purpose: "Database, sign-in and file storage for the whole product",
     data: "Staff records, schedules, punches, messages, change record",
     region: "United States",
@@ -22,7 +22,7 @@ export const VENDORS: Vendor[] = [
     region: "United States",
   },
   {
-    name: "Lovable AI Gateway",
+    name: "Anthropic (Claude)",
     purpose: "The assistant and the background scheduler",
     data: "Schedule and staffing details needed to answer a request",
     region: "United States",

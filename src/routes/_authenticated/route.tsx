@@ -175,16 +175,19 @@ function AppLayout() {
   const isAdmin = Boolean((config as { isAdmin?: boolean } | undefined)?.isAdmin);
 
   // Administrator accounts must clear the second sign-in step before seeing anything.
+  // Set VITE_REQUIRE_ADMIN_MFA=true to turn this back on before real staff data is involved.
+  const requireAdminMfa = import.meta.env["VITE_REQUIRE_ADMIN_MFA"] === "true";
   const { data: secondStep } = useQuery({
     queryKey: ["second-step-state"],
     queryFn: () => secondStepState(),
-    enabled: Boolean(session) && isAdmin,
+    enabled: Boolean(session) && isAdmin && requireAdminMfa,
     staleTime: 30_000,
   });
 
   useEffect(() => {
-    if (isAdmin && secondStep && !secondStep.satisfied) void navigate({ to: "/mfa" });
-  }, [isAdmin, secondStep, navigate]);
+    if (requireAdminMfa && isAdmin && secondStep && !secondStep.satisfied)
+      void navigate({ to: "/mfa" });
+  }, [requireAdminMfa, isAdmin, secondStep, navigate]);
 
   const baseGroups = isManager ? MANAGER_NAV : EMPLOYEE_NAV;
   const groups: NavGroup[] = isAdmin
