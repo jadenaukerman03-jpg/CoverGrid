@@ -53,8 +53,8 @@ import {
 } from "./automation.impl.server";
 import { getAutopilotSettings } from "./settings.server";
 
-const GATEWAY = "https://ai.gateway.lovable.dev/v1/chat/completions";
-const MODEL = "google/gemini-3.1-pro-preview";
+const ANTHROPIC_API = "https://api.anthropic.com/v1/messages";
+const MODEL = "claude-sonnet-5";
 
 type Tool = {
   name: string;
@@ -1072,23 +1072,23 @@ You are speaking with ${actor.employee?.full_name ?? actor.profile?.full_name ??
 STRICT PRIVACY: you may only reveal information about this employee. Never disclose another employee's attendance points, personal information or records, and never reveal manager-only staffing analytics. If asked, politely explain you can only share their own information and suggest they contact a manager.`;
 }
 
-type ChatMsg = {
-  role: string;
-  content: string | null;
-  tool_calls?: unknown;
-  tool_call_id?: string;
-  name?: string;
-};
+type AnthropicBlock =
+  | { type: "text"; text: string }
+  | { type: "tool_use"; id: string; name: string; input: unknown }
+  | { type: "tool_result"; tool_use_id: string; content: string };
+
+type AnthropicMsg = { role: "user" | "assistant"; content: string | AnthropicBlock[] };
 
 export async function runAssistant(userId: string, message: string) {
   const actor = await loadActor(userId);
-  const apiKey = process.env["LOVABLE_API_KEY"];
+  const apiKey = process.env["ANTHROPIC_API_KEY"];
   if (!apiKey) throw new Error("The AI coordinator is not configured yet.");
 
   const available = TOOLS.filter((t) => (t.managerOnly ? actor.isManager : true));
   const toolSpec = available.map((t) => ({
-    type: "function",
-    function: { name: t.name, description: t.description, parameters: t.parameters },
+    name: t.name,
+    description: t.description,
+    input_schema: t.parameters,
   }));
 
   const { data: history } = await db
@@ -1097,87 +1097,102 @@ export async function runAssistant(userId: string, message: string) {
     .eq("user_id", userId)
     .order("created_at", { ascending: false })
     .limit(12);
-  const prior = (history ?? []).reverse().map((m) => ({ role: m.role, content: m.content }));
+  const prior: AnthropicMsg[] = (history ?? [])
+    .reverse()
+    .map((m) => ({ role: m.role as "user" | "assistant", content: m.content ?? "" }));
 
-  const messages: ChatMsg[] = [
-    { role: "system", content: systemPrompt(actor) },
-    ...prior,
-    { role: "user", content: message },
-  ];
+  const messages: AnthropicMsg[] = [...prior, { role: "user", content: message }];
 
   await db.from("chat_messages").insert({ user_id: userId, role: "user", content: message });
 
   const usedTools: string[] = [];
   let final = "";
 
-  const callGateway = async (body: Record<string, unknown>) => {
-    const res = await fetch(GATEWAY, {
+  const callAnthropic = async (body: Record<string, unknown>) => {
+    const res = await fetch(ANTHROPIC_API, {
       method: "POST",
-      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+      headers: {
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+        "content-type": "application/json",
+      },
       body: JSON.stringify(body),
     });
     if (!res.ok) {
       const text = await res.text();
-      console.error(`AI gateway error [${res.status}]: ${text}`);
+      console.error(`Anthropic API error [${res.status}]: ${text}`);
       if (res.status === 429)
         throw new Error("The assistant is busy right now. Please try again in a moment.");
-      if (res.status === 402)
+      if (res.status === 402 || res.status === 403)
         throw new Error("AI credits are exhausted. Add credits to keep using the assistant.");
       throw new Error(`Assistant request failed [${res.status}]: ${text}`);
     }
-    const json = (await res.json()) as {
-      choices: {
-        message: {
-          content: string | null;
-          tool_calls?: { id: string; function: { name: string; arguments: string } }[];
-        };
-      }[];
-    };
-    return json.choices?.[0]?.message;
+    return (await res.json()) as { content: AnthropicBlock[]; stop_reason: string };
   };
 
   for (let turn = 0; turn < 16; turn++) {
-    const msg = await callGateway({ model: MODEL, messages, tools: toolSpec, tool_choice: "auto" });
-    if (!msg) throw new Error("The assistant returned an empty response.");
-    messages.push(msg as ChatMsg);
-    const calls = msg.tool_calls ?? [];
+    const response = await callAnthropic({
+      model: MODEL,
+      max_tokens: 2048,
+      system: systemPrompt(actor),
+      messages,
+      tools: toolSpec,
+    });
+    if (!response.content?.length) throw new Error("The assistant returned an empty response.");
+    messages.push({ role: "assistant", content: response.content });
+
+    const calls = response.content.filter(
+      (block): block is Extract<AnthropicBlock, { type: "tool_use" }> => block.type === "tool_use",
+    );
     if (calls.length === 0) {
-      final = (msg.content ?? "").trim();
+      final = response.content
+        .filter(
+          (block): block is Extract<AnthropicBlock, { type: "text" }> => block.type === "text",
+        )
+        .map((block) => block.text)
+        .join("\n")
+        .trim();
       break;
     }
+
+    const results: AnthropicBlock[] = [];
     for (const call of calls) {
-      const tool = available.find((t) => t.name === call.function.name);
+      const tool = available.find((t) => t.name === call.name);
       let result: unknown;
       if (!tool) {
         result = { error: "You are not authorized to use that capability." };
       } else {
         try {
-          const args = call.function.arguments ? JSON.parse(call.function.arguments) : {};
-          result = await tool.run(actor, args);
+          result = await tool.run(actor, call.input);
           usedTools.push(tool.name);
         } catch (err) {
           result = { error: err instanceof Error ? err.message : "Tool failed." };
         }
       }
-      messages.push({
-        role: "tool",
-        tool_call_id: call.id,
-        name: call.function.name,
-        content: JSON.stringify(result),
-      });
+      results.push({ type: "tool_result", tool_use_id: call.id, content: JSON.stringify(result) });
     }
+    messages.push({ role: "user", content: results });
   }
 
   if (!final) {
     // Ran out of tool turns (or the model answered with tool calls only).
     // Force a plain-language answer using everything gathered so far.
     messages.push({
-      role: "system",
+      role: "user",
       content:
         "Stop using tools now. Reply in plain language with what you found and did, and state clearly anything you could not complete.",
     });
-    const wrap = await callGateway({ model: MODEL, messages, tool_choice: "none" });
-    final = (wrap?.content ?? "").trim();
+    const wrap = await callAnthropic({
+      model: MODEL,
+      max_tokens: 2048,
+      system: systemPrompt(actor),
+      messages,
+    });
+    final = (wrap.content ?? [])
+      .filter((block): block is Extract<AnthropicBlock, { type: "text" }> => block.type === "text")
+      .map((block) => block.text)
+      .join("\n")
+      .trim();
   }
   if (!final) final = "I wasn't able to finish that request. Could you rephrase it?";
 

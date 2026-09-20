@@ -14,8 +14,8 @@ import { getAutopilotSettings, updateAutopilotSettings, updatePpdGoal } from "./
 import { generateScheduleAction, runAutomationNow } from "./automation.impl.server";
 import { sendMessageAction } from "./workforce.impl.server";
 
-const GATEWAY = "https://ai.gateway.lovable.dev/v1/chat/completions";
-const MODEL = "google/gemini-3.1-pro-preview";
+const ANTHROPIC_API = "https://api.anthropic.com/v1/messages";
+const MODEL = "claude-sonnet-5";
 
 const obj = (props: Record<string, unknown>, required: string[] = []) => ({
   type: "object",
@@ -516,23 +516,23 @@ HOW YOU WORK
 7. No jargon. Never mention tools, tables, databases or "AI". Today is ${today()}.`;
 }
 
-type ChatMsg = {
-  role: string;
-  content: string | null;
-  tool_calls?: unknown;
-  tool_call_id?: string;
-  name?: string;
-};
+type AnthropicBlock =
+  | { type: "text"; text: string }
+  | { type: "tool_use"; id: string; name: string; input: unknown }
+  | { type: "tool_result"; tool_use_id: string; content: string };
+
+type AnthropicMsg = { role: "user" | "assistant"; content: string | AnthropicBlock[] };
 
 export async function runArchitect(userId: string, message: string) {
   const actor = await loadActor(userId);
   requireAdmin(actor);
-  const apiKey = process.env["LOVABLE_API_KEY"];
+  const apiKey = process.env["ANTHROPIC_API_KEY"];
   if (!apiKey) throw new Error("The control room is not configured yet.");
 
   const toolSpec = TOOLS.map((t) => ({
-    type: "function",
-    function: { name: t.name, description: t.description, parameters: t.parameters },
+    name: t.name,
+    description: t.description,
+    input_schema: t.parameters,
   }));
 
   const { data: history } = await db
@@ -542,83 +542,100 @@ export async function runArchitect(userId: string, message: string) {
     .like("role", "cr_%")
     .order("created_at", { ascending: false })
     .limit(12);
-  const prior = (history ?? []).reverse().map((m) => ({
-    role: String(m.role).replace("cr_", ""),
-    content: m.content,
+  const prior: AnthropicMsg[] = (history ?? []).reverse().map((m) => ({
+    role: String(m.role).replace("cr_", "") as "user" | "assistant",
+    content: m.content ?? "",
   }));
 
-  const messages: ChatMsg[] = [
-    { role: "system", content: systemPrompt(actor) },
-    ...prior,
-    { role: "user", content: message },
-  ];
+  const messages: AnthropicMsg[] = [...prior, { role: "user", content: message }];
   await db.from("chat_messages").insert({ user_id: userId, role: "cr_user", content: message });
 
   const call = async (body: Record<string, unknown>) => {
-    const res = await fetch(GATEWAY, {
+    const res = await fetch(ANTHROPIC_API, {
       method: "POST",
-      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+      headers: {
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+        "content-type": "application/json",
+      },
       body: JSON.stringify(body),
     });
     if (!res.ok) {
       const text = await res.text();
-      console.error(`Control room gateway error [${res.status}]: ${text}`);
+      console.error(`Control room API error [${res.status}]: ${text}`);
       if (res.status === 429)
         throw new Error("The control room is busy right now. Try again in a moment.");
-      if (res.status === 402)
+      if (res.status === 402 || res.status === 403)
         throw new Error("AI credits are exhausted. Add credits to keep using the control room.");
       throw new Error(`Control room request failed [${res.status}].`);
     }
-    const json = (await res.json()) as {
-      choices: {
-        message: {
-          content: string | null;
-          tool_calls?: { id: string; function: { name: string; arguments: string } }[];
-        };
-      }[];
-    };
-    return json.choices?.[0]?.message;
+    return (await res.json()) as { content: AnthropicBlock[]; stop_reason: string };
   };
 
   const changes: string[] = [];
   let final = "";
   for (let turn = 0; turn < 16; turn++) {
-    const msg = await call({ model: MODEL, messages, tools: toolSpec, tool_choice: "auto" });
-    if (!msg) throw new Error("The control room returned an empty response.");
-    messages.push(msg as ChatMsg);
-    const calls = msg.tool_calls ?? [];
+    const response = await call({
+      model: MODEL,
+      max_tokens: 2048,
+      system: systemPrompt(actor),
+      messages,
+      tools: toolSpec,
+    });
+    if (!response.content?.length) throw new Error("The control room returned an empty response.");
+    messages.push({ role: "assistant", content: response.content });
+
+    const calls = response.content.filter(
+      (block): block is Extract<AnthropicBlock, { type: "tool_use" }> => block.type === "tool_use",
+    );
     if (!calls.length) {
-      final = (msg.content ?? "").trim();
+      final = response.content
+        .filter(
+          (block): block is Extract<AnthropicBlock, { type: "text" }> => block.type === "text",
+        )
+        .map((block) => block.text)
+        .join("\n")
+        .trim();
       break;
     }
+
+    const results: AnthropicBlock[] = [];
     for (const c of calls) {
-      const tool = TOOLS.find((t) => t.name === c.function.name);
+      const tool = TOOLS.find((t) => t.name === c.name);
       let result: unknown;
       if (!tool) result = { error: "Unknown capability." };
       else {
         try {
-          result = await tool.run(
-            actor,
-            c.function.arguments ? JSON.parse(c.function.arguments) : {},
-          );
+          result = await tool.run(actor, c.input);
           changes.push(tool.name);
         } catch (err) {
           result = { error: err instanceof Error ? err.message : "That step failed." };
         }
       }
-      messages.push({
-        role: "tool",
-        tool_call_id: c.id,
-        name: c.function.name,
-        content: JSON.stringify(result),
-      });
+      results.push({ type: "tool_result", tool_use_id: c.id, content: JSON.stringify(result) });
     }
+    messages.push({ role: "user", content: results });
   }
 
   if (!final) {
-    const wrap = await call({ model: MODEL, messages, tool_choice: "none" });
+    messages.push({
+      role: "user",
+      content: "Stop using tools now. Reply in plain language with what you found and did.",
+    });
+    const wrap = await call({
+      model: MODEL,
+      max_tokens: 2048,
+      system: systemPrompt(actor),
+      messages,
+    });
     final =
-      (wrap?.content ?? "").trim() ||
+      (wrap.content ?? [])
+        .filter(
+          (block): block is Extract<AnthropicBlock, { type: "text" }> => block.type === "text",
+        )
+        .map((block) => block.text)
+        .join("\n")
+        .trim() ||
       "I made progress but could not finish that. Tell me the part that matters most and I'll take it from there.";
   }
 
