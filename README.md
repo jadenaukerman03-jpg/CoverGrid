@@ -1,35 +1,29 @@
-# CoverGrid
+# Welcome to your Lovable project
 
-CoverGrid is an AI-native shift scheduling system for nursing homes and long-term care
-facilities. It aims to replace incumbent tools like OnShift by running the call-off-to-coverage
-loop end to end — detect a gap, rank eligible staff, text them, confirm the fill, and escalate to
-a manager only when it's genuinely stuck — instead of leaving that loop to a human scheduler.
+This project was built with [Lovable](https://lovable.dev).
 
-Scope is deliberately staff-scheduling only: no resident/patient or care data. See
-[docs/project-plan.md](docs/project-plan.md) for the full product plan, data model, and roadmap.
+## Build with Lovable
+
+Open your project in the [Lovable editor](https://lovable.dev) and keep building.
+
+- **Ship faster**: describe what you want to build and Lovable handles the code.
+- **Stay in sync**: connect the project to GitHub and every change made in Lovable is committed straight to your repository.
+- **Full ownership**: this code is yours. Push to your repository and your changes sync back into Lovable, ready for your next prompt.
 
 ## Development
 
-Use npm and the committed lockfile:
+Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
 
 ```sh
-npm ci
+git clone <this-repository-url>
+cd <repository-name>
+npm i
 npm run dev
 ```
 
-Copy `.env.example` to an ignored local `.env` file and configure the required values there. Never
-commit `.env` files or credentials.
+## Built with
 
-## Validation
-
-Run the local quality gate with:
-
-```sh
-npm run check
-```
-
-## Database
-
-Schema lives in `supabase/migrations`. Every table is scoped to a facility through
-`facility_members` and enforced with row-level security — see
-`supabase/migrations/0001_init.sql`.
+- TanStack Start
+- TypeScript
+- React
+- Tailwind CSS

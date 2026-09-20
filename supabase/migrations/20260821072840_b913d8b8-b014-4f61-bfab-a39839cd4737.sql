@@ -1,0 +1,1 @@
+DELETE FROM public.login_attempts WHERE email = 'nobody-test@example.com';

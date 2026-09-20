@@ -19,8 +19,9 @@ dist-ssr
 .env.*
 !.env.example
 
-# Supabase CLI state
-supabase/.temp/
+# Wrangler / Cloudflare
+.wrangler/
+.dev.vars
 
 # Editor directories and files
 .vscode/*

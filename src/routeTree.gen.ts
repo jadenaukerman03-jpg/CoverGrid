@@ -10,43 +10,784 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ScheduleRouteImport } from './routes/schedule'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
+import { Route as KioskRouteImport } from './routes/kiosk'
+import { Route as McpRouteImport } from './routes/mcp'
+import { Route as MfaRouteImport } from './routes/mfa'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as SecurityPracticesRouteImport } from './routes/security-practices'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
+import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
+import { Route as AuthenticatedActivityRouteImport } from './routes/_authenticated/activity'
+import { Route as AuthenticatedAgenciesRouteImport } from './routes/_authenticated/agencies'
+import { Route as AuthenticatedAlertsRouteImport } from './routes/_authenticated/alerts'
+import { Route as AuthenticatedAssistantRouteImport } from './routes/_authenticated/assistant'
+import { Route as AuthenticatedAutomationRouteImport } from './routes/_authenticated/automation'
+import { Route as AuthenticatedBuildingsRouteImport } from './routes/_authenticated/buildings'
+import { Route as AuthenticatedCensusRouteImport } from './routes/_authenticated/census'
+import { Route as AuthenticatedComplianceRouteImport } from './routes/_authenticated/compliance'
+import { Route as AuthenticatedControlRoomRouteImport } from './routes/_authenticated/control-room'
+import { Route as AuthenticatedCredentialsRouteImport } from './routes/_authenticated/credentials'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedEngagementRouteImport } from './routes/_authenticated/engagement'
+import { Route as AuthenticatedFairnessRouteImport } from './routes/_authenticated/fairness'
+import { Route as AuthenticatedHandoffRouteImport } from './routes/_authenticated/handoff'
+import { Route as AuthenticatedHiringRouteImport } from './routes/_authenticated/hiring'
+import { Route as AuthenticatedHrComplianceRouteImport } from './routes/_authenticated/hr-compliance'
+import { Route as AuthenticatedIntegrationsRouteImport } from './routes/_authenticated/integrations'
+import { Route as AuthenticatedLaborRouteImport } from './routes/_authenticated/labor'
+import { Route as AuthenticatedLowCensusRouteImport } from './routes/_authenticated/low-census'
+import { Route as AuthenticatedMarketplaceRouteImport } from './routes/_authenticated/marketplace'
+import { Route as AuthenticatedMessagesRouteImport } from './routes/_authenticated/messages'
+import { Route as AuthenticatedMyShiftsRouteImport } from './routes/_authenticated/my-shifts'
+import { Route as AuthenticatedMyTrainingRouteImport } from './routes/_authenticated/my-training'
+import { Route as AuthenticatedNewHiresRouteImport } from './routes/_authenticated/new-hires'
+import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
+import { Route as AuthenticatedPaperworkRouteImport } from './routes/_authenticated/paperwork'
+import { Route as AuthenticatedPayrollRouteImport } from './routes/_authenticated/payroll'
+import { Route as AuthenticatedPickupRouteImport } from './routes/_authenticated/pickup'
+import { Route as AuthenticatedPointsRouteImport } from './routes/_authenticated/points'
+import { Route as AuthenticatedPoliciesRouteImport } from './routes/_authenticated/policies'
+import { Route as AuthenticatedRequestsRouteImport } from './routes/_authenticated/requests'
+import { Route as AuthenticatedRiskRouteImport } from './routes/_authenticated/risk'
+import { Route as AuthenticatedRollupRouteImport } from './routes/_authenticated/rollup'
+import { Route as AuthenticatedScheduleRouteImport } from './routes/_authenticated/schedule'
+import { Route as AuthenticatedSecurityRouteImport } from './routes/_authenticated/security'
+import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
+import { Route as AuthenticatedSetupRouteImport } from './routes/_authenticated/setup'
+import { Route as AuthenticatedShiftTextsRouteImport } from './routes/_authenticated/shift-texts'
+import { Route as AuthenticatedTeamRouteImport } from './routes/_authenticated/team'
+import { Route as AuthenticatedTimeclockRouteImport } from './routes/_authenticated/timeclock'
+import { Route as AuthenticatedTrainingRouteImport } from './routes/_authenticated/training'
+import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
+import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
+import { Route as ApiPublicHooksAutomationRouteImport } from './routes/api/public/hooks/automation'
+import { Route as ApiPublicHooksCensusRouteImport } from './routes/api/public/hooks/census'
+import { Route as ApiPublicHooksClockCheckRouteImport } from './routes/api/public/hooks/clock-check'
+import { Route as ApiPublicHooksPunchRouteImport } from './routes/api/public/hooks/punch'
+import { Route as ApiPublicHooksSmsInboundRouteImport } from './routes/api/public/hooks/sms-inbound'
+import { Route as ApiPublicHooksIntegrationSlugRouteImport } from './routes/api/public/hooks/integration/$slug'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ScheduleRoute = ScheduleRouteImport.update({
-  id: '/schedule',
-  path: '/schedule',
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KioskRoute = KioskRouteImport.update({
+  id: '/kiosk',
+  path: '/kiosk',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const McpRoute = McpRouteImport.update({
+  id: '/mcp',
+  path: '/mcp',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MfaRoute = MfaRouteImport.update({
+  id: '/mfa',
+  path: '/mfa',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SecurityPracticesRoute = SecurityPracticesRouteImport.update({
+  id: '/security-practices',
+  path: '/security-practices',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const Char91DotmcpChar93ListToolsRoute =
+  Char91DotmcpChar93ListToolsRouteImport.update({
+    id: '/.mcp/list-tools',
+    path: '/.mcp/list-tools',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const Char91DotwellKnownChar93OauthProtectedResourceRoute =
+  Char91DotwellKnownChar93OauthProtectedResourceRouteImport.update({
+    id: '/.well-known/oauth-protected-resource',
+    path: '/.well-known/oauth-protected-resource',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const AuthenticatedActivityRoute = AuthenticatedActivityRouteImport.update({
+  id: '/activity',
+  path: '/activity',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAgenciesRoute = AuthenticatedAgenciesRouteImport.update({
+  id: '/agencies',
+  path: '/agencies',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAlertsRoute = AuthenticatedAlertsRouteImport.update({
+  id: '/alerts',
+  path: '/alerts',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAssistantRoute = AuthenticatedAssistantRouteImport.update({
+  id: '/assistant',
+  path: '/assistant',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAutomationRoute = AuthenticatedAutomationRouteImport.update({
+  id: '/automation',
+  path: '/automation',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedBuildingsRoute = AuthenticatedBuildingsRouteImport.update({
+  id: '/buildings',
+  path: '/buildings',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedCensusRoute = AuthenticatedCensusRouteImport.update({
+  id: '/census',
+  path: '/census',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedComplianceRoute = AuthenticatedComplianceRouteImport.update({
+  id: '/compliance',
+  path: '/compliance',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedControlRoomRoute =
+  AuthenticatedControlRoomRouteImport.update({
+    id: '/control-room',
+    path: '/control-room',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedCredentialsRoute =
+  AuthenticatedCredentialsRouteImport.update({
+    id: '/credentials',
+    path: '/credentials',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedEngagementRoute = AuthenticatedEngagementRouteImport.update({
+  id: '/engagement',
+  path: '/engagement',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedFairnessRoute = AuthenticatedFairnessRouteImport.update({
+  id: '/fairness',
+  path: '/fairness',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedHandoffRoute = AuthenticatedHandoffRouteImport.update({
+  id: '/handoff',
+  path: '/handoff',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedHiringRoute = AuthenticatedHiringRouteImport.update({
+  id: '/hiring',
+  path: '/hiring',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedHrComplianceRoute =
+  AuthenticatedHrComplianceRouteImport.update({
+    id: '/hr-compliance',
+    path: '/hr-compliance',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedIntegrationsRoute =
+  AuthenticatedIntegrationsRouteImport.update({
+    id: '/integrations',
+    path: '/integrations',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedLaborRoute = AuthenticatedLaborRouteImport.update({
+  id: '/labor',
+  path: '/labor',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedLowCensusRoute = AuthenticatedLowCensusRouteImport.update({
+  id: '/low-census',
+  path: '/low-census',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedMarketplaceRoute =
+  AuthenticatedMarketplaceRouteImport.update({
+    id: '/marketplace',
+    path: '/marketplace',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedMessagesRoute = AuthenticatedMessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedMyShiftsRoute = AuthenticatedMyShiftsRouteImport.update({
+  id: '/my-shifts',
+  path: '/my-shifts',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedMyTrainingRoute = AuthenticatedMyTrainingRouteImport.update({
+  id: '/my-training',
+  path: '/my-training',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedNewHiresRoute = AuthenticatedNewHiresRouteImport.update({
+  id: '/new-hires',
+  path: '/new-hires',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedNotificationsRoute =
+  AuthenticatedNotificationsRouteImport.update({
+    id: '/notifications',
+    path: '/notifications',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedPaperworkRoute = AuthenticatedPaperworkRouteImport.update({
+  id: '/paperwork',
+  path: '/paperwork',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedPayrollRoute = AuthenticatedPayrollRouteImport.update({
+  id: '/payroll',
+  path: '/payroll',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedPickupRoute = AuthenticatedPickupRouteImport.update({
+  id: '/pickup',
+  path: '/pickup',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedPointsRoute = AuthenticatedPointsRouteImport.update({
+  id: '/points',
+  path: '/points',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedPoliciesRoute = AuthenticatedPoliciesRouteImport.update({
+  id: '/policies',
+  path: '/policies',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedRequestsRoute = AuthenticatedRequestsRouteImport.update({
+  id: '/requests',
+  path: '/requests',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedRiskRoute = AuthenticatedRiskRouteImport.update({
+  id: '/risk',
+  path: '/risk',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedRollupRoute = AuthenticatedRollupRouteImport.update({
+  id: '/rollup',
+  path: '/rollup',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedScheduleRoute = AuthenticatedScheduleRouteImport.update({
+  id: '/schedule',
+  path: '/schedule',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedSecurityRoute = AuthenticatedSecurityRouteImport.update({
+  id: '/security',
+  path: '/security',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedSetupRoute = AuthenticatedSetupRouteImport.update({
+  id: '/setup',
+  path: '/setup',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedShiftTextsRoute = AuthenticatedShiftTextsRouteImport.update({
+  id: '/shift-texts',
+  path: '/shift-texts',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedTeamRoute = AuthenticatedTeamRouteImport.update({
+  id: '/team',
+  path: '/team',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedTimeclockRoute = AuthenticatedTimeclockRouteImport.update({
+  id: '/timeclock',
+  path: '/timeclock',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedTrainingRoute = AuthenticatedTrainingRouteImport.update({
+  id: '/training',
+  path: '/training',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
+  id: '/.lovable/oauth/consent',
+  path: '/.lovable/oauth/consent',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const Char91DotmcpChar93InvokeToolToolRoute =
+  Char91DotmcpChar93InvokeToolToolRouteImport.update({
+    id: '/.mcp/invoke-tool/$tool',
+    path: '/.mcp/invoke-tool/$tool',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksAutomationRoute =
+  ApiPublicHooksAutomationRouteImport.update({
+    id: '/api/public/hooks/automation',
+    path: '/api/public/hooks/automation',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksCensusRoute = ApiPublicHooksCensusRouteImport.update({
+  id: '/api/public/hooks/census',
+  path: '/api/public/hooks/census',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicHooksClockCheckRoute =
+  ApiPublicHooksClockCheckRouteImport.update({
+    id: '/api/public/hooks/clock-check',
+    path: '/api/public/hooks/clock-check',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksPunchRoute = ApiPublicHooksPunchRouteImport.update({
+  id: '/api/public/hooks/punch',
+  path: '/api/public/hooks/punch',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicHooksSmsInboundRoute =
+  ApiPublicHooksSmsInboundRouteImport.update({
+    id: '/api/public/hooks/sms-inbound',
+    path: '/api/public/hooks/sms-inbound',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksIntegrationSlugRoute =
+  ApiPublicHooksIntegrationSlugRouteImport.update({
+    id: '/api/public/hooks/integration/$slug',
+    path: '/api/public/hooks/integration/$slug',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/schedule': typeof ScheduleRoute
+  '/auth': typeof AuthRoute
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/kiosk': typeof KioskRoute
+  '/mcp': typeof McpRoute
+  '/mfa': typeof MfaRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/security-practices': typeof SecurityPracticesRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/activity': typeof AuthenticatedActivityRoute
+  '/agencies': typeof AuthenticatedAgenciesRoute
+  '/alerts': typeof AuthenticatedAlertsRoute
+  '/assistant': typeof AuthenticatedAssistantRoute
+  '/automation': typeof AuthenticatedAutomationRoute
+  '/buildings': typeof AuthenticatedBuildingsRoute
+  '/census': typeof AuthenticatedCensusRoute
+  '/compliance': typeof AuthenticatedComplianceRoute
+  '/control-room': typeof AuthenticatedControlRoomRoute
+  '/credentials': typeof AuthenticatedCredentialsRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/engagement': typeof AuthenticatedEngagementRoute
+  '/fairness': typeof AuthenticatedFairnessRoute
+  '/handoff': typeof AuthenticatedHandoffRoute
+  '/hiring': typeof AuthenticatedHiringRoute
+  '/hr-compliance': typeof AuthenticatedHrComplianceRoute
+  '/integrations': typeof AuthenticatedIntegrationsRoute
+  '/labor': typeof AuthenticatedLaborRoute
+  '/low-census': typeof AuthenticatedLowCensusRoute
+  '/marketplace': typeof AuthenticatedMarketplaceRoute
+  '/messages': typeof AuthenticatedMessagesRoute
+  '/my-shifts': typeof AuthenticatedMyShiftsRoute
+  '/my-training': typeof AuthenticatedMyTrainingRoute
+  '/new-hires': typeof AuthenticatedNewHiresRoute
+  '/notifications': typeof AuthenticatedNotificationsRoute
+  '/paperwork': typeof AuthenticatedPaperworkRoute
+  '/payroll': typeof AuthenticatedPayrollRoute
+  '/pickup': typeof AuthenticatedPickupRoute
+  '/points': typeof AuthenticatedPointsRoute
+  '/policies': typeof AuthenticatedPoliciesRoute
+  '/requests': typeof AuthenticatedRequestsRoute
+  '/risk': typeof AuthenticatedRiskRoute
+  '/rollup': typeof AuthenticatedRollupRoute
+  '/schedule': typeof AuthenticatedScheduleRoute
+  '/security': typeof AuthenticatedSecurityRoute
+  '/settings': typeof AuthenticatedSettingsRoute
+  '/setup': typeof AuthenticatedSetupRoute
+  '/shift-texts': typeof AuthenticatedShiftTextsRoute
+  '/team': typeof AuthenticatedTeamRoute
+  '/timeclock': typeof AuthenticatedTimeclockRoute
+  '/training': typeof AuthenticatedTrainingRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
+  '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
+  '/api/public/hooks/automation': typeof ApiPublicHooksAutomationRoute
+  '/api/public/hooks/census': typeof ApiPublicHooksCensusRoute
+  '/api/public/hooks/clock-check': typeof ApiPublicHooksClockCheckRoute
+  '/api/public/hooks/punch': typeof ApiPublicHooksPunchRoute
+  '/api/public/hooks/sms-inbound': typeof ApiPublicHooksSmsInboundRoute
+  '/api/public/hooks/integration/$slug': typeof ApiPublicHooksIntegrationSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/schedule': typeof ScheduleRoute
+  '/auth': typeof AuthRoute
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/kiosk': typeof KioskRoute
+  '/mcp': typeof McpRoute
+  '/mfa': typeof MfaRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/security-practices': typeof SecurityPracticesRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/activity': typeof AuthenticatedActivityRoute
+  '/agencies': typeof AuthenticatedAgenciesRoute
+  '/alerts': typeof AuthenticatedAlertsRoute
+  '/assistant': typeof AuthenticatedAssistantRoute
+  '/automation': typeof AuthenticatedAutomationRoute
+  '/buildings': typeof AuthenticatedBuildingsRoute
+  '/census': typeof AuthenticatedCensusRoute
+  '/compliance': typeof AuthenticatedComplianceRoute
+  '/control-room': typeof AuthenticatedControlRoomRoute
+  '/credentials': typeof AuthenticatedCredentialsRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/engagement': typeof AuthenticatedEngagementRoute
+  '/fairness': typeof AuthenticatedFairnessRoute
+  '/handoff': typeof AuthenticatedHandoffRoute
+  '/hiring': typeof AuthenticatedHiringRoute
+  '/hr-compliance': typeof AuthenticatedHrComplianceRoute
+  '/integrations': typeof AuthenticatedIntegrationsRoute
+  '/labor': typeof AuthenticatedLaborRoute
+  '/low-census': typeof AuthenticatedLowCensusRoute
+  '/marketplace': typeof AuthenticatedMarketplaceRoute
+  '/messages': typeof AuthenticatedMessagesRoute
+  '/my-shifts': typeof AuthenticatedMyShiftsRoute
+  '/my-training': typeof AuthenticatedMyTrainingRoute
+  '/new-hires': typeof AuthenticatedNewHiresRoute
+  '/notifications': typeof AuthenticatedNotificationsRoute
+  '/paperwork': typeof AuthenticatedPaperworkRoute
+  '/payroll': typeof AuthenticatedPayrollRoute
+  '/pickup': typeof AuthenticatedPickupRoute
+  '/points': typeof AuthenticatedPointsRoute
+  '/policies': typeof AuthenticatedPoliciesRoute
+  '/requests': typeof AuthenticatedRequestsRoute
+  '/risk': typeof AuthenticatedRiskRoute
+  '/rollup': typeof AuthenticatedRollupRoute
+  '/schedule': typeof AuthenticatedScheduleRoute
+  '/security': typeof AuthenticatedSecurityRoute
+  '/settings': typeof AuthenticatedSettingsRoute
+  '/setup': typeof AuthenticatedSetupRoute
+  '/shift-texts': typeof AuthenticatedShiftTextsRoute
+  '/team': typeof AuthenticatedTeamRoute
+  '/timeclock': typeof AuthenticatedTimeclockRoute
+  '/training': typeof AuthenticatedTrainingRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
+  '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
+  '/api/public/hooks/automation': typeof ApiPublicHooksAutomationRoute
+  '/api/public/hooks/census': typeof ApiPublicHooksCensusRoute
+  '/api/public/hooks/clock-check': typeof ApiPublicHooksClockCheckRoute
+  '/api/public/hooks/punch': typeof ApiPublicHooksPunchRoute
+  '/api/public/hooks/sms-inbound': typeof ApiPublicHooksSmsInboundRoute
+  '/api/public/hooks/integration/$slug': typeof ApiPublicHooksIntegrationSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/schedule': typeof ScheduleRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/kiosk': typeof KioskRoute
+  '/mcp': typeof McpRoute
+  '/mfa': typeof MfaRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/security-practices': typeof SecurityPracticesRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/_authenticated/activity': typeof AuthenticatedActivityRoute
+  '/_authenticated/agencies': typeof AuthenticatedAgenciesRoute
+  '/_authenticated/alerts': typeof AuthenticatedAlertsRoute
+  '/_authenticated/assistant': typeof AuthenticatedAssistantRoute
+  '/_authenticated/automation': typeof AuthenticatedAutomationRoute
+  '/_authenticated/buildings': typeof AuthenticatedBuildingsRoute
+  '/_authenticated/census': typeof AuthenticatedCensusRoute
+  '/_authenticated/compliance': typeof AuthenticatedComplianceRoute
+  '/_authenticated/control-room': typeof AuthenticatedControlRoomRoute
+  '/_authenticated/credentials': typeof AuthenticatedCredentialsRoute
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/engagement': typeof AuthenticatedEngagementRoute
+  '/_authenticated/fairness': typeof AuthenticatedFairnessRoute
+  '/_authenticated/handoff': typeof AuthenticatedHandoffRoute
+  '/_authenticated/hiring': typeof AuthenticatedHiringRoute
+  '/_authenticated/hr-compliance': typeof AuthenticatedHrComplianceRoute
+  '/_authenticated/integrations': typeof AuthenticatedIntegrationsRoute
+  '/_authenticated/labor': typeof AuthenticatedLaborRoute
+  '/_authenticated/low-census': typeof AuthenticatedLowCensusRoute
+  '/_authenticated/marketplace': typeof AuthenticatedMarketplaceRoute
+  '/_authenticated/messages': typeof AuthenticatedMessagesRoute
+  '/_authenticated/my-shifts': typeof AuthenticatedMyShiftsRoute
+  '/_authenticated/my-training': typeof AuthenticatedMyTrainingRoute
+  '/_authenticated/new-hires': typeof AuthenticatedNewHiresRoute
+  '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
+  '/_authenticated/paperwork': typeof AuthenticatedPaperworkRoute
+  '/_authenticated/payroll': typeof AuthenticatedPayrollRoute
+  '/_authenticated/pickup': typeof AuthenticatedPickupRoute
+  '/_authenticated/points': typeof AuthenticatedPointsRoute
+  '/_authenticated/policies': typeof AuthenticatedPoliciesRoute
+  '/_authenticated/requests': typeof AuthenticatedRequestsRoute
+  '/_authenticated/risk': typeof AuthenticatedRiskRoute
+  '/_authenticated/rollup': typeof AuthenticatedRollupRoute
+  '/_authenticated/schedule': typeof AuthenticatedScheduleRoute
+  '/_authenticated/security': typeof AuthenticatedSecurityRoute
+  '/_authenticated/settings': typeof AuthenticatedSettingsRoute
+  '/_authenticated/setup': typeof AuthenticatedSetupRoute
+  '/_authenticated/shift-texts': typeof AuthenticatedShiftTextsRoute
+  '/_authenticated/team': typeof AuthenticatedTeamRoute
+  '/_authenticated/timeclock': typeof AuthenticatedTimeclockRoute
+  '/_authenticated/training': typeof AuthenticatedTrainingRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
+  '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
+  '/api/public/hooks/automation': typeof ApiPublicHooksAutomationRoute
+  '/api/public/hooks/census': typeof ApiPublicHooksCensusRoute
+  '/api/public/hooks/clock-check': typeof ApiPublicHooksClockCheckRoute
+  '/api/public/hooks/punch': typeof ApiPublicHooksPunchRoute
+  '/api/public/hooks/sms-inbound': typeof ApiPublicHooksSmsInboundRoute
+  '/api/public/hooks/integration/$slug': typeof ApiPublicHooksIntegrationSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/schedule'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/forgot-password'
+    | '/kiosk'
+    | '/mcp'
+    | '/mfa'
+    | '/reset-password'
+    | '/security-practices'
+    | '/sitemap.xml'
+    | '/.mcp/list-tools'
+    | '/.well-known/oauth-protected-resource'
+    | '/activity'
+    | '/agencies'
+    | '/alerts'
+    | '/assistant'
+    | '/automation'
+    | '/buildings'
+    | '/census'
+    | '/compliance'
+    | '/control-room'
+    | '/credentials'
+    | '/dashboard'
+    | '/engagement'
+    | '/fairness'
+    | '/handoff'
+    | '/hiring'
+    | '/hr-compliance'
+    | '/integrations'
+    | '/labor'
+    | '/low-census'
+    | '/marketplace'
+    | '/messages'
+    | '/my-shifts'
+    | '/my-training'
+    | '/new-hires'
+    | '/notifications'
+    | '/paperwork'
+    | '/payroll'
+    | '/pickup'
+    | '/points'
+    | '/policies'
+    | '/requests'
+    | '/risk'
+    | '/rollup'
+    | '/schedule'
+    | '/security'
+    | '/settings'
+    | '/setup'
+    | '/shift-texts'
+    | '/team'
+    | '/timeclock'
+    | '/training'
+    | '/.lovable/oauth/consent'
+    | '/.mcp/invoke-tool/$tool'
+    | '/api/public/hooks/automation'
+    | '/api/public/hooks/census'
+    | '/api/public/hooks/clock-check'
+    | '/api/public/hooks/punch'
+    | '/api/public/hooks/sms-inbound'
+    | '/api/public/hooks/integration/$slug'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/schedule'
-  id: '__root__' | '/' | '/schedule'
+  to:
+    | '/'
+    | '/auth'
+    | '/forgot-password'
+    | '/kiosk'
+    | '/mcp'
+    | '/mfa'
+    | '/reset-password'
+    | '/security-practices'
+    | '/sitemap.xml'
+    | '/.mcp/list-tools'
+    | '/.well-known/oauth-protected-resource'
+    | '/activity'
+    | '/agencies'
+    | '/alerts'
+    | '/assistant'
+    | '/automation'
+    | '/buildings'
+    | '/census'
+    | '/compliance'
+    | '/control-room'
+    | '/credentials'
+    | '/dashboard'
+    | '/engagement'
+    | '/fairness'
+    | '/handoff'
+    | '/hiring'
+    | '/hr-compliance'
+    | '/integrations'
+    | '/labor'
+    | '/low-census'
+    | '/marketplace'
+    | '/messages'
+    | '/my-shifts'
+    | '/my-training'
+    | '/new-hires'
+    | '/notifications'
+    | '/paperwork'
+    | '/payroll'
+    | '/pickup'
+    | '/points'
+    | '/policies'
+    | '/requests'
+    | '/risk'
+    | '/rollup'
+    | '/schedule'
+    | '/security'
+    | '/settings'
+    | '/setup'
+    | '/shift-texts'
+    | '/team'
+    | '/timeclock'
+    | '/training'
+    | '/.lovable/oauth/consent'
+    | '/.mcp/invoke-tool/$tool'
+    | '/api/public/hooks/automation'
+    | '/api/public/hooks/census'
+    | '/api/public/hooks/clock-check'
+    | '/api/public/hooks/punch'
+    | '/api/public/hooks/sms-inbound'
+    | '/api/public/hooks/integration/$slug'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/auth'
+    | '/forgot-password'
+    | '/kiosk'
+    | '/mcp'
+    | '/mfa'
+    | '/reset-password'
+    | '/security-practices'
+    | '/sitemap.xml'
+    | '/.mcp/list-tools'
+    | '/.well-known/oauth-protected-resource'
+    | '/_authenticated/activity'
+    | '/_authenticated/agencies'
+    | '/_authenticated/alerts'
+    | '/_authenticated/assistant'
+    | '/_authenticated/automation'
+    | '/_authenticated/buildings'
+    | '/_authenticated/census'
+    | '/_authenticated/compliance'
+    | '/_authenticated/control-room'
+    | '/_authenticated/credentials'
+    | '/_authenticated/dashboard'
+    | '/_authenticated/engagement'
+    | '/_authenticated/fairness'
+    | '/_authenticated/handoff'
+    | '/_authenticated/hiring'
+    | '/_authenticated/hr-compliance'
+    | '/_authenticated/integrations'
+    | '/_authenticated/labor'
+    | '/_authenticated/low-census'
+    | '/_authenticated/marketplace'
+    | '/_authenticated/messages'
+    | '/_authenticated/my-shifts'
+    | '/_authenticated/my-training'
+    | '/_authenticated/new-hires'
+    | '/_authenticated/notifications'
+    | '/_authenticated/paperwork'
+    | '/_authenticated/payroll'
+    | '/_authenticated/pickup'
+    | '/_authenticated/points'
+    | '/_authenticated/policies'
+    | '/_authenticated/requests'
+    | '/_authenticated/risk'
+    | '/_authenticated/rollup'
+    | '/_authenticated/schedule'
+    | '/_authenticated/security'
+    | '/_authenticated/settings'
+    | '/_authenticated/setup'
+    | '/_authenticated/shift-texts'
+    | '/_authenticated/team'
+    | '/_authenticated/timeclock'
+    | '/_authenticated/training'
+    | '/.lovable/oauth/consent'
+    | '/.mcp/invoke-tool/$tool'
+    | '/api/public/hooks/automation'
+    | '/api/public/hooks/census'
+    | '/api/public/hooks/clock-check'
+    | '/api/public/hooks/punch'
+    | '/api/public/hooks/sms-inbound'
+    | '/api/public/hooks/integration/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  ScheduleRoute: typeof ScheduleRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
+  ForgotPasswordRoute: typeof ForgotPasswordRoute
+  KioskRoute: typeof KioskRoute
+  McpRoute: typeof McpRoute
+  MfaRoute: typeof MfaRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
+  SecurityPracticesRoute: typeof SecurityPracticesRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
+  Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
+  Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
+  ApiPublicHooksAutomationRoute: typeof ApiPublicHooksAutomationRoute
+  ApiPublicHooksCensusRoute: typeof ApiPublicHooksCensusRoute
+  ApiPublicHooksClockCheckRoute: typeof ApiPublicHooksClockCheckRoute
+  ApiPublicHooksPunchRoute: typeof ApiPublicHooksPunchRoute
+  ApiPublicHooksSmsInboundRoute: typeof ApiPublicHooksSmsInboundRoute
+  ApiPublicHooksIntegrationSlugRoute: typeof ApiPublicHooksIntegrationSlugRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -58,19 +799,542 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/schedule': {
-      id: '/schedule'
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/kiosk': {
+      id: '/kiosk'
+      path: '/kiosk'
+      fullPath: '/kiosk'
+      preLoaderRoute: typeof KioskRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mcp': {
+      id: '/mcp'
+      path: '/mcp'
+      fullPath: '/mcp'
+      preLoaderRoute: typeof McpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mfa': {
+      id: '/mfa'
+      path: '/mfa'
+      fullPath: '/mfa'
+      preLoaderRoute: typeof MfaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/security-practices': {
+      id: '/security-practices'
+      path: '/security-practices'
+      fullPath: '/security-practices'
+      preLoaderRoute: typeof SecurityPracticesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.mcp/list-tools': {
+      id: '/.mcp/list-tools'
+      path: '/.mcp/list-tools'
+      fullPath: '/.mcp/list-tools'
+      preLoaderRoute: typeof Char91DotmcpChar93ListToolsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.well-known/oauth-protected-resource': {
+      id: '/.well-known/oauth-protected-resource'
+      path: '/.well-known/oauth-protected-resource'
+      fullPath: '/.well-known/oauth-protected-resource'
+      preLoaderRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/activity': {
+      id: '/_authenticated/activity'
+      path: '/activity'
+      fullPath: '/activity'
+      preLoaderRoute: typeof AuthenticatedActivityRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/agencies': {
+      id: '/_authenticated/agencies'
+      path: '/agencies'
+      fullPath: '/agencies'
+      preLoaderRoute: typeof AuthenticatedAgenciesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/alerts': {
+      id: '/_authenticated/alerts'
+      path: '/alerts'
+      fullPath: '/alerts'
+      preLoaderRoute: typeof AuthenticatedAlertsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/assistant': {
+      id: '/_authenticated/assistant'
+      path: '/assistant'
+      fullPath: '/assistant'
+      preLoaderRoute: typeof AuthenticatedAssistantRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/automation': {
+      id: '/_authenticated/automation'
+      path: '/automation'
+      fullPath: '/automation'
+      preLoaderRoute: typeof AuthenticatedAutomationRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/buildings': {
+      id: '/_authenticated/buildings'
+      path: '/buildings'
+      fullPath: '/buildings'
+      preLoaderRoute: typeof AuthenticatedBuildingsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/census': {
+      id: '/_authenticated/census'
+      path: '/census'
+      fullPath: '/census'
+      preLoaderRoute: typeof AuthenticatedCensusRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/compliance': {
+      id: '/_authenticated/compliance'
+      path: '/compliance'
+      fullPath: '/compliance'
+      preLoaderRoute: typeof AuthenticatedComplianceRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/control-room': {
+      id: '/_authenticated/control-room'
+      path: '/control-room'
+      fullPath: '/control-room'
+      preLoaderRoute: typeof AuthenticatedControlRoomRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/credentials': {
+      id: '/_authenticated/credentials'
+      path: '/credentials'
+      fullPath: '/credentials'
+      preLoaderRoute: typeof AuthenticatedCredentialsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/engagement': {
+      id: '/_authenticated/engagement'
+      path: '/engagement'
+      fullPath: '/engagement'
+      preLoaderRoute: typeof AuthenticatedEngagementRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/fairness': {
+      id: '/_authenticated/fairness'
+      path: '/fairness'
+      fullPath: '/fairness'
+      preLoaderRoute: typeof AuthenticatedFairnessRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/handoff': {
+      id: '/_authenticated/handoff'
+      path: '/handoff'
+      fullPath: '/handoff'
+      preLoaderRoute: typeof AuthenticatedHandoffRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/hiring': {
+      id: '/_authenticated/hiring'
+      path: '/hiring'
+      fullPath: '/hiring'
+      preLoaderRoute: typeof AuthenticatedHiringRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/hr-compliance': {
+      id: '/_authenticated/hr-compliance'
+      path: '/hr-compliance'
+      fullPath: '/hr-compliance'
+      preLoaderRoute: typeof AuthenticatedHrComplianceRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/integrations': {
+      id: '/_authenticated/integrations'
+      path: '/integrations'
+      fullPath: '/integrations'
+      preLoaderRoute: typeof AuthenticatedIntegrationsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/labor': {
+      id: '/_authenticated/labor'
+      path: '/labor'
+      fullPath: '/labor'
+      preLoaderRoute: typeof AuthenticatedLaborRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/low-census': {
+      id: '/_authenticated/low-census'
+      path: '/low-census'
+      fullPath: '/low-census'
+      preLoaderRoute: typeof AuthenticatedLowCensusRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/marketplace': {
+      id: '/_authenticated/marketplace'
+      path: '/marketplace'
+      fullPath: '/marketplace'
+      preLoaderRoute: typeof AuthenticatedMarketplaceRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/messages': {
+      id: '/_authenticated/messages'
+      path: '/messages'
+      fullPath: '/messages'
+      preLoaderRoute: typeof AuthenticatedMessagesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/my-shifts': {
+      id: '/_authenticated/my-shifts'
+      path: '/my-shifts'
+      fullPath: '/my-shifts'
+      preLoaderRoute: typeof AuthenticatedMyShiftsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/my-training': {
+      id: '/_authenticated/my-training'
+      path: '/my-training'
+      fullPath: '/my-training'
+      preLoaderRoute: typeof AuthenticatedMyTrainingRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/new-hires': {
+      id: '/_authenticated/new-hires'
+      path: '/new-hires'
+      fullPath: '/new-hires'
+      preLoaderRoute: typeof AuthenticatedNewHiresRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/notifications': {
+      id: '/_authenticated/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof AuthenticatedNotificationsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/paperwork': {
+      id: '/_authenticated/paperwork'
+      path: '/paperwork'
+      fullPath: '/paperwork'
+      preLoaderRoute: typeof AuthenticatedPaperworkRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/payroll': {
+      id: '/_authenticated/payroll'
+      path: '/payroll'
+      fullPath: '/payroll'
+      preLoaderRoute: typeof AuthenticatedPayrollRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/pickup': {
+      id: '/_authenticated/pickup'
+      path: '/pickup'
+      fullPath: '/pickup'
+      preLoaderRoute: typeof AuthenticatedPickupRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/points': {
+      id: '/_authenticated/points'
+      path: '/points'
+      fullPath: '/points'
+      preLoaderRoute: typeof AuthenticatedPointsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/policies': {
+      id: '/_authenticated/policies'
+      path: '/policies'
+      fullPath: '/policies'
+      preLoaderRoute: typeof AuthenticatedPoliciesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/requests': {
+      id: '/_authenticated/requests'
+      path: '/requests'
+      fullPath: '/requests'
+      preLoaderRoute: typeof AuthenticatedRequestsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/risk': {
+      id: '/_authenticated/risk'
+      path: '/risk'
+      fullPath: '/risk'
+      preLoaderRoute: typeof AuthenticatedRiskRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/rollup': {
+      id: '/_authenticated/rollup'
+      path: '/rollup'
+      fullPath: '/rollup'
+      preLoaderRoute: typeof AuthenticatedRollupRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/schedule': {
+      id: '/_authenticated/schedule'
       path: '/schedule'
       fullPath: '/schedule'
-      preLoaderRoute: typeof ScheduleRouteImport
+      preLoaderRoute: typeof AuthenticatedScheduleRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/security': {
+      id: '/_authenticated/security'
+      path: '/security'
+      fullPath: '/security'
+      preLoaderRoute: typeof AuthenticatedSecurityRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/settings': {
+      id: '/_authenticated/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AuthenticatedSettingsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/setup': {
+      id: '/_authenticated/setup'
+      path: '/setup'
+      fullPath: '/setup'
+      preLoaderRoute: typeof AuthenticatedSetupRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/shift-texts': {
+      id: '/_authenticated/shift-texts'
+      path: '/shift-texts'
+      fullPath: '/shift-texts'
+      preLoaderRoute: typeof AuthenticatedShiftTextsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/team': {
+      id: '/_authenticated/team'
+      path: '/team'
+      fullPath: '/team'
+      preLoaderRoute: typeof AuthenticatedTeamRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/timeclock': {
+      id: '/_authenticated/timeclock'
+      path: '/timeclock'
+      fullPath: '/timeclock'
+      preLoaderRoute: typeof AuthenticatedTimeclockRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/training': {
+      id: '/_authenticated/training'
+      path: '/training'
+      fullPath: '/training'
+      preLoaderRoute: typeof AuthenticatedTrainingRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/.lovable/oauth/consent': {
+      id: '/.lovable/oauth/consent'
+      path: '/.lovable/oauth/consent'
+      fullPath: '/.lovable/oauth/consent'
+      preLoaderRoute: typeof DotlovableOauthConsentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.mcp/invoke-tool/$tool': {
+      id: '/.mcp/invoke-tool/$tool'
+      path: '/.mcp/invoke-tool/$tool'
+      fullPath: '/.mcp/invoke-tool/$tool'
+      preLoaderRoute: typeof Char91DotmcpChar93InvokeToolToolRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/automation': {
+      id: '/api/public/hooks/automation'
+      path: '/api/public/hooks/automation'
+      fullPath: '/api/public/hooks/automation'
+      preLoaderRoute: typeof ApiPublicHooksAutomationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/census': {
+      id: '/api/public/hooks/census'
+      path: '/api/public/hooks/census'
+      fullPath: '/api/public/hooks/census'
+      preLoaderRoute: typeof ApiPublicHooksCensusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/clock-check': {
+      id: '/api/public/hooks/clock-check'
+      path: '/api/public/hooks/clock-check'
+      fullPath: '/api/public/hooks/clock-check'
+      preLoaderRoute: typeof ApiPublicHooksClockCheckRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/punch': {
+      id: '/api/public/hooks/punch'
+      path: '/api/public/hooks/punch'
+      fullPath: '/api/public/hooks/punch'
+      preLoaderRoute: typeof ApiPublicHooksPunchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/sms-inbound': {
+      id: '/api/public/hooks/sms-inbound'
+      path: '/api/public/hooks/sms-inbound'
+      fullPath: '/api/public/hooks/sms-inbound'
+      preLoaderRoute: typeof ApiPublicHooksSmsInboundRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/integration/$slug': {
+      id: '/api/public/hooks/integration/$slug'
+      path: '/api/public/hooks/integration/$slug'
+      fullPath: '/api/public/hooks/integration/$slug'
+      preLoaderRoute: typeof ApiPublicHooksIntegrationSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedActivityRoute: typeof AuthenticatedActivityRoute
+  AuthenticatedAgenciesRoute: typeof AuthenticatedAgenciesRoute
+  AuthenticatedAlertsRoute: typeof AuthenticatedAlertsRoute
+  AuthenticatedAssistantRoute: typeof AuthenticatedAssistantRoute
+  AuthenticatedAutomationRoute: typeof AuthenticatedAutomationRoute
+  AuthenticatedBuildingsRoute: typeof AuthenticatedBuildingsRoute
+  AuthenticatedCensusRoute: typeof AuthenticatedCensusRoute
+  AuthenticatedComplianceRoute: typeof AuthenticatedComplianceRoute
+  AuthenticatedControlRoomRoute: typeof AuthenticatedControlRoomRoute
+  AuthenticatedCredentialsRoute: typeof AuthenticatedCredentialsRoute
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedEngagementRoute: typeof AuthenticatedEngagementRoute
+  AuthenticatedFairnessRoute: typeof AuthenticatedFairnessRoute
+  AuthenticatedHandoffRoute: typeof AuthenticatedHandoffRoute
+  AuthenticatedHiringRoute: typeof AuthenticatedHiringRoute
+  AuthenticatedHrComplianceRoute: typeof AuthenticatedHrComplianceRoute
+  AuthenticatedIntegrationsRoute: typeof AuthenticatedIntegrationsRoute
+  AuthenticatedLaborRoute: typeof AuthenticatedLaborRoute
+  AuthenticatedLowCensusRoute: typeof AuthenticatedLowCensusRoute
+  AuthenticatedMarketplaceRoute: typeof AuthenticatedMarketplaceRoute
+  AuthenticatedMessagesRoute: typeof AuthenticatedMessagesRoute
+  AuthenticatedMyShiftsRoute: typeof AuthenticatedMyShiftsRoute
+  AuthenticatedMyTrainingRoute: typeof AuthenticatedMyTrainingRoute
+  AuthenticatedNewHiresRoute: typeof AuthenticatedNewHiresRoute
+  AuthenticatedNotificationsRoute: typeof AuthenticatedNotificationsRoute
+  AuthenticatedPaperworkRoute: typeof AuthenticatedPaperworkRoute
+  AuthenticatedPayrollRoute: typeof AuthenticatedPayrollRoute
+  AuthenticatedPickupRoute: typeof AuthenticatedPickupRoute
+  AuthenticatedPointsRoute: typeof AuthenticatedPointsRoute
+  AuthenticatedPoliciesRoute: typeof AuthenticatedPoliciesRoute
+  AuthenticatedRequestsRoute: typeof AuthenticatedRequestsRoute
+  AuthenticatedRiskRoute: typeof AuthenticatedRiskRoute
+  AuthenticatedRollupRoute: typeof AuthenticatedRollupRoute
+  AuthenticatedScheduleRoute: typeof AuthenticatedScheduleRoute
+  AuthenticatedSecurityRoute: typeof AuthenticatedSecurityRoute
+  AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
+  AuthenticatedSetupRoute: typeof AuthenticatedSetupRoute
+  AuthenticatedShiftTextsRoute: typeof AuthenticatedShiftTextsRoute
+  AuthenticatedTeamRoute: typeof AuthenticatedTeamRoute
+  AuthenticatedTimeclockRoute: typeof AuthenticatedTimeclockRoute
+  AuthenticatedTrainingRoute: typeof AuthenticatedTrainingRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedActivityRoute: AuthenticatedActivityRoute,
+  AuthenticatedAgenciesRoute: AuthenticatedAgenciesRoute,
+  AuthenticatedAlertsRoute: AuthenticatedAlertsRoute,
+  AuthenticatedAssistantRoute: AuthenticatedAssistantRoute,
+  AuthenticatedAutomationRoute: AuthenticatedAutomationRoute,
+  AuthenticatedBuildingsRoute: AuthenticatedBuildingsRoute,
+  AuthenticatedCensusRoute: AuthenticatedCensusRoute,
+  AuthenticatedComplianceRoute: AuthenticatedComplianceRoute,
+  AuthenticatedControlRoomRoute: AuthenticatedControlRoomRoute,
+  AuthenticatedCredentialsRoute: AuthenticatedCredentialsRoute,
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedEngagementRoute: AuthenticatedEngagementRoute,
+  AuthenticatedFairnessRoute: AuthenticatedFairnessRoute,
+  AuthenticatedHandoffRoute: AuthenticatedHandoffRoute,
+  AuthenticatedHiringRoute: AuthenticatedHiringRoute,
+  AuthenticatedHrComplianceRoute: AuthenticatedHrComplianceRoute,
+  AuthenticatedIntegrationsRoute: AuthenticatedIntegrationsRoute,
+  AuthenticatedLaborRoute: AuthenticatedLaborRoute,
+  AuthenticatedLowCensusRoute: AuthenticatedLowCensusRoute,
+  AuthenticatedMarketplaceRoute: AuthenticatedMarketplaceRoute,
+  AuthenticatedMessagesRoute: AuthenticatedMessagesRoute,
+  AuthenticatedMyShiftsRoute: AuthenticatedMyShiftsRoute,
+  AuthenticatedMyTrainingRoute: AuthenticatedMyTrainingRoute,
+  AuthenticatedNewHiresRoute: AuthenticatedNewHiresRoute,
+  AuthenticatedNotificationsRoute: AuthenticatedNotificationsRoute,
+  AuthenticatedPaperworkRoute: AuthenticatedPaperworkRoute,
+  AuthenticatedPayrollRoute: AuthenticatedPayrollRoute,
+  AuthenticatedPickupRoute: AuthenticatedPickupRoute,
+  AuthenticatedPointsRoute: AuthenticatedPointsRoute,
+  AuthenticatedPoliciesRoute: AuthenticatedPoliciesRoute,
+  AuthenticatedRequestsRoute: AuthenticatedRequestsRoute,
+  AuthenticatedRiskRoute: AuthenticatedRiskRoute,
+  AuthenticatedRollupRoute: AuthenticatedRollupRoute,
+  AuthenticatedScheduleRoute: AuthenticatedScheduleRoute,
+  AuthenticatedSecurityRoute: AuthenticatedSecurityRoute,
+  AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
+  AuthenticatedSetupRoute: AuthenticatedSetupRoute,
+  AuthenticatedShiftTextsRoute: AuthenticatedShiftTextsRoute,
+  AuthenticatedTeamRoute: AuthenticatedTeamRoute,
+  AuthenticatedTimeclockRoute: AuthenticatedTimeclockRoute,
+  AuthenticatedTrainingRoute: AuthenticatedTrainingRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  ScheduleRoute: ScheduleRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
+  ForgotPasswordRoute: ForgotPasswordRoute,
+  KioskRoute: KioskRoute,
+  McpRoute: McpRoute,
+  MfaRoute: MfaRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
+  SecurityPracticesRoute: SecurityPracticesRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
+  Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
+  Char91DotwellKnownChar93OauthProtectedResourceRoute:
+    Char91DotwellKnownChar93OauthProtectedResourceRoute,
+  DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
+  Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
+  ApiPublicHooksAutomationRoute: ApiPublicHooksAutomationRoute,
+  ApiPublicHooksCensusRoute: ApiPublicHooksCensusRoute,
+  ApiPublicHooksClockCheckRoute: ApiPublicHooksClockCheckRoute,
+  ApiPublicHooksPunchRoute: ApiPublicHooksPunchRoute,
+  ApiPublicHooksSmsInboundRoute: ApiPublicHooksSmsInboundRoute,
+  ApiPublicHooksIntegrationSlugRoute: ApiPublicHooksIntegrationSlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

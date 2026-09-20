@@ -1,0 +1,1 @@
+ALTER TABLE public.automation_settings ADD COLUMN IF NOT EXISTS ppd_goal numeric NOT NULL DEFAULT 3.6;
