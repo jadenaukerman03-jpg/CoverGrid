@@ -45,12 +45,23 @@ export const Route = createFileRoute("/auth")({
 
 const BUILDING_STORAGE = "CoverGrid.building";
 
-/** Plain-language check so automated scripts can't hammer the sign-in form. */
+/**
+ * Plain-language check so automated scripts can't hammer the sign-in form.
+ * The numbers are randomized only after mount (never during the initial
+ * render), since that render runs on both the server and the client and
+ * must produce identical output or React's hydration fails.
+ */
 function useHumanCheck() {
-  const [a] = useState(() => 2 + Math.floor(Math.random() * 7));
-  const [b] = useState(() => 1 + Math.floor(Math.random() * 5));
+  const [a, setA] = useState(2);
+  const [b, setB] = useState(1);
   const [answer, setAnswer] = useState("");
   const [confirmed, setConfirmed] = useState(false);
+
+  useEffect(() => {
+    setA(2 + Math.floor(Math.random() * 7));
+    setB(1 + Math.floor(Math.random() * 5));
+  }, []);
+
   const passed = confirmed && answer.trim() === String(a + b);
   return { a, b, answer, setAnswer, confirmed, setConfirmed, passed };
 }
