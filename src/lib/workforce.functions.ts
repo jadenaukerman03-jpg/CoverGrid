@@ -43,12 +43,33 @@ export const getTimeClock = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => timeClockData(context.userId));
 
+const punchLocation = z
+  .object({
+    lat: z.number().min(-90).max(90),
+    lng: z.number().min(-180).max(180),
+    accuracyM: z.number().min(0).optional(),
+  })
+  .nullable()
+  .optional();
+
 export const punchFn = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) =>
-    z.object({ assignmentId: z.string().nullable(), kind: z.enum(["in", "out"]) }).parse(d),
+    z
+      .object({
+        assignmentId: z.string().nullable(),
+        kind: z.enum(["in", "out"]),
+        location: punchLocation,
+        locationAttempted: z.boolean().optional(),
+      })
+      .parse(d),
   )
-  .handler(async ({ context, data }) => punchAction(context.userId, data.assignmentId, data.kind));
+  .handler(async ({ context, data }) =>
+    punchAction(context.userId, data.assignmentId, data.kind, {
+      location: data.location,
+      locationAttempted: data.locationAttempted,
+    }),
+  );
 
 export const getPunchReport = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])

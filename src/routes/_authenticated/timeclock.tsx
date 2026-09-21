@@ -37,7 +37,37 @@ const EXCEPTION_LABEL: Record<string, string> = {
   early_punch: "Early punch",
   missed_clock_out: "Missed clock-out",
   no_punch: "No punch recorded",
+  outside_geofence: "Outside the building",
+  no_location: "Location not shared",
 };
+
+function exceptionLabels(exception: string) {
+  return exception
+    .split(",")
+    .map((e) => EXCEPTION_LABEL[e] ?? e)
+    .join(" + ");
+}
+
+/** Asks the browser for a one-shot location fix. Never throws — a denial or
+ * timeout just means the punch goes through without one. */
+function getLocation(): Promise<{ lat: number; lng: number; accuracyM?: number } | null> {
+  return new Promise((resolve) => {
+    if (typeof navigator === "undefined" || !navigator.geolocation) {
+      resolve(null);
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (pos) =>
+        resolve({
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+          accuracyM: pos.coords.accuracy,
+        }),
+      () => resolve(null),
+      { enableHighAccuracy: true, timeout: 8000, maximumAge: 30000 },
+    );
+  });
+}
 
 function TimeClockPage() {
   const qc = useQueryClient();
@@ -51,7 +81,12 @@ function TimeClockPage() {
   const wallet = useQuery({ queryKey: ["wallet"], queryFn: () => loadWallet() });
 
   const punchMutation = useMutation({
-    mutationFn: (v: { assignmentId: string | null; kind: "in" | "out" }) => doPunch({ data: v }),
+    mutationFn: async (v: { assignmentId: string | null; kind: "in" | "out" }) => {
+      const location = v.kind === "in" ? await getLocation() : null;
+      return doPunch({
+        data: { ...v, location, locationAttempted: v.kind === "in" },
+      });
+    },
     onSuccess: (res) => {
       toast.success(res.message);
       void qc.invalidateQueries();
@@ -195,7 +230,7 @@ function TimeClockPage() {
               <span>{(p.minutes_worked / 60).toFixed(2)}h</span>
               {p.exception ? (
                 <Badge className="bg-warning text-warning-foreground">
-                  {EXCEPTION_LABEL[p.exception] ?? p.exception}
+                  {exceptionLabels(p.exception)}
                 </Badge>
               ) : (
                 <Badge variant="secondary">Clean</Badge>

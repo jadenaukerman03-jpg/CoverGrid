@@ -210,6 +210,9 @@ export const saveFacilityFn = createServerFn({ method: "POST" })
         name: z.string().min(1),
         address: z.string().optional(),
         weeklyLaborBudget: z.number().optional(),
+        geofenceLat: z.number().min(-90).max(90).nullable().optional(),
+        geofenceLng: z.number().min(-180).max(180).nullable().optional(),
+        geofenceRadiusM: z.number().int().min(20).max(5000).nullable().optional(),
       })
       .parse(d),
   )

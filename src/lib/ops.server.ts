@@ -1081,6 +1081,9 @@ export async function floatPoolBoard() {
       address: f.address as string,
       weeklyLaborBudget: Number(f.weekly_labor_budget),
       isActive: f.is_active as boolean,
+      geofenceLat: (f.geofence_lat as number | null) ?? null,
+      geofenceLng: (f.geofence_lng as number | null) ?? null,
+      geofenceRadiusM: (f.geofence_radius_m as number | null) ?? null,
       units: (units ?? [])
         .filter((u) => u.facility_id === f.id)
         .map((u) => ({ id: u.id as string, name: u.name as string })),
@@ -1097,6 +1100,9 @@ export async function saveFacility(
     name: string;
     address?: string | undefined;
     weeklyLaborBudget?: number | undefined;
+    geofenceLat?: number | null | undefined;
+    geofenceLng?: number | null | undefined;
+    geofenceRadiusM?: number | null | undefined;
   },
   actorLabel: string,
 ) {
@@ -1104,6 +1110,9 @@ export async function saveFacility(
     name: input.name,
     address: input.address ?? "",
     weekly_labor_budget: input.weeklyLaborBudget ?? 0,
+    geofence_lat: input.geofenceLat ?? null,
+    geofence_lng: input.geofenceLng ?? null,
+    geofence_radius_m: input.geofenceRadiusM ?? null,
   };
   if (input.id) {
     await db.from("facilities").update(patch).eq("id", input.id);

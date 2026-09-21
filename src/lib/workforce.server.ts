@@ -195,7 +195,63 @@ function shiftStartAt(date: string, shift: ShiftType) {
   return new Date(`${date}T${String(hour).padStart(2, "0")}:00:00`);
 }
 
-export async function punch(employeeId: string, assignmentId: string | null, kind: "in" | "out") {
+/** Great-circle distance in meters (Haversine). */
+function distanceMeters(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const R = 6_371_000;
+  const toRad = (d: number) => (d * Math.PI) / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+/** Which building this punch should be checked against: the shift's unit first, then the employee's own. */
+async function resolveFacilityId(
+  employeeId: string,
+  assignmentId: string | null,
+): Promise<string | null> {
+  if (assignmentId) {
+    const { data: a } = await db
+      .from("shift_assignments")
+      .select("unit_id")
+      .eq("id", assignmentId)
+      .maybeSingle();
+    if (a?.unit_id) {
+      const { data: u } = await db
+        .from("units")
+        .select("facility_id")
+        .eq("id", a.unit_id)
+        .maybeSingle();
+      if (u?.facility_id) return u.facility_id as string;
+    }
+  }
+  const { data: e } = await db
+    .from("employees")
+    .select("home_facility_id,primary_unit_id")
+    .eq("id", employeeId)
+    .maybeSingle();
+  if (e?.home_facility_id) return e.home_facility_id as string;
+  if (e?.primary_unit_id) {
+    const { data: u } = await db
+      .from("units")
+      .select("facility_id")
+      .eq("id", e.primary_unit_id)
+      .maybeSingle();
+    if (u?.facility_id) return u.facility_id as string;
+  }
+  return null;
+}
+
+export type PunchLocation = { lat: number; lng: number; accuracyM?: number | undefined };
+
+export async function punch(
+  employeeId: string,
+  assignmentId: string | null,
+  kind: "in" | "out",
+  opts?: { location?: PunchLocation | null | undefined; locationAttempted?: boolean | undefined },
+) {
   const now = new Date();
   const date = today();
   const { data: open } = await db
@@ -209,7 +265,7 @@ export async function punch(employeeId: string, assignmentId: string | null, kin
 
   if (kind === "in") {
     if (open) throw new Error("You are already clocked in.");
-    let exception: string | null = null;
+    const flags: string[] = [];
     if (assignmentId) {
       const { data: a } = await db
         .from("shift_assignments")
@@ -219,10 +275,43 @@ export async function punch(employeeId: string, assignmentId: string | null, kin
       if (a) {
         const diff =
           (now.getTime() - shiftStartAt(a.shift_date, a.shift as ShiftType).getTime()) / 60000;
-        if (diff > 7) exception = "late_punch";
-        else if (diff < -15) exception = "early_punch";
+        if (diff > 7) flags.push("late_punch");
+        else if (diff < -15) flags.push("early_punch");
       }
     }
+
+    // Only a self-service punch (one where the browser actually tried to get a
+    // location) is checked against the building's geofence — a wall clock/kiosk
+    // punch is inherently on-site and never asks for one.
+    if (opts?.locationAttempted) {
+      const facilityId = await resolveFacilityId(employeeId, assignmentId);
+      const fac = facilityId
+        ? (
+            await db
+              .from("facilities")
+              .select("geofence_lat,geofence_lng,geofence_radius_m")
+              .eq("id", facilityId)
+              .maybeSingle()
+          ).data
+        : null;
+      if (fac?.geofence_lat != null && fac.geofence_lng != null && fac.geofence_radius_m != null) {
+        if (opts.location) {
+          const dist = distanceMeters(
+            Number(fac.geofence_lat),
+            Number(fac.geofence_lng),
+            opts.location.lat,
+            opts.location.lng,
+          );
+          // GPS accuracy varies; give a little room rather than punishing a fuzzy reading.
+          const buffer = Math.min(200, Math.max(0, opts.location.accuracyM ?? 0));
+          if (dist > Number(fac.geofence_radius_m) + buffer) flags.push("outside_geofence");
+        } else {
+          flags.push("no_location");
+        }
+      }
+    }
+
+    const exception = flags.length ? flags.join(",") : null;
     const { data, error } = await db
       .from("time_punches")
       .insert({
@@ -231,14 +320,19 @@ export async function punch(employeeId: string, assignmentId: string | null, kin
         date,
         clock_in: now.toISOString(),
         exception,
+        lat: opts?.location?.lat ?? null,
+        lng: opts?.location?.lng ?? null,
+        accuracy_m: opts?.location?.accuracyM ?? null,
       })
       .select()
       .single();
     if (error) throw new Error(error.message);
-    return {
-      punch: data,
-      message: exception === "late_punch" ? "Clocked in — flagged as a late punch." : "Clocked in.",
-    };
+    const message = flags.includes("outside_geofence")
+      ? "Clocked in — flagged as outside the building."
+      : flags.includes("late_punch")
+        ? "Clocked in — flagged as a late punch."
+        : "Clocked in.";
+    return { punch: data, message };
   }
 
   if (!open) throw new Error("You are not clocked in.");

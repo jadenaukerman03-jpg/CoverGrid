@@ -1,4 +1,4 @@
-export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
+﻿export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
 export type Database = {
   // Allows to automatically instantiate createClient with right options
@@ -912,6 +912,9 @@ export type Database = {
         Row: {
           address: string;
           created_at: string;
+          geofence_lat: number | null;
+          geofence_lng: number | null;
+          geofence_radius_m: number | null;
           id: string;
           is_active: boolean;
           name: string;
@@ -922,6 +925,9 @@ export type Database = {
         Insert: {
           address?: string;
           created_at?: string;
+          geofence_lat?: number | null;
+          geofence_lng?: number | null;
+          geofence_radius_m?: number | null;
           id?: string;
           is_active?: boolean;
           name: string;
@@ -932,6 +938,9 @@ export type Database = {
         Update: {
           address?: string;
           created_at?: string;
+          geofence_lat?: number | null;
+          geofence_lng?: number | null;
+          geofence_radius_m?: number | null;
           id?: string;
           is_active?: boolean;
           name?: string;
@@ -2915,6 +2924,7 @@ export type Database = {
       };
       time_punches: {
         Row: {
+          accuracy_m: number | null;
           assignment_id: string | null;
           clock_in: string | null;
           clock_out: string | null;
@@ -2924,10 +2934,13 @@ export type Database = {
           employee_id: string;
           exception: string | null;
           id: string;
+          lat: number | null;
+          lng: number | null;
           minutes_worked: number;
           source: string;
         };
         Insert: {
+          accuracy_m?: number | null;
           assignment_id?: string | null;
           clock_in?: string | null;
           clock_out?: string | null;
@@ -2937,10 +2950,13 @@ export type Database = {
           employee_id: string;
           exception?: string | null;
           id?: string;
+          lat?: number | null;
+          lng?: number | null;
           minutes_worked?: number;
           source?: string;
         };
         Update: {
+          accuracy_m?: number | null;
           assignment_id?: string | null;
           clock_in?: string | null;
           clock_out?: string | null;
@@ -2950,6 +2966,8 @@ export type Database = {
           employee_id?: string;
           exception?: string | null;
           id?: string;
+          lat?: number | null;
+          lng?: number | null;
           minutes_worked?: number;
           source?: string;
         };

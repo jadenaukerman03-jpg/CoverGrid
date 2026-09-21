@@ -50,6 +50,9 @@ function BuildingsPage() {
           name: f["name"] ?? "",
           address: f["address"] ?? "",
           weeklyLaborBudget: Number(f["weeklyLaborBudget"] ?? 0),
+          geofenceLat: f["geofenceLat"] ? Number(f["geofenceLat"]) : null,
+          geofenceLng: f["geofenceLng"] ? Number(f["geofenceLng"]) : null,
+          geofenceRadiusM: f["geofenceRadiusM"] ? Number(f["geofenceRadiusM"]) : null,
         },
       }),
     onSuccess: () => {
@@ -102,6 +105,9 @@ function BuildingsPage() {
                     name: f.name,
                     address: f.address,
                     weeklyLaborBudget: String(f.weeklyLaborBudget),
+                    geofenceLat: f.geofenceLat != null ? String(f.geofenceLat) : "",
+                    geofenceLng: f.geofenceLng != null ? String(f.geofenceLng) : "",
+                    geofenceRadiusM: f.geofenceRadiusM != null ? String(f.geofenceRadiusM) : "",
                   })
                 }
               >
@@ -116,6 +122,11 @@ function BuildingsPage() {
               <p className="text-muted-foreground">
                 Weekly labor budget ${f.weeklyLaborBudget.toLocaleString()} · {f.poolMembers} in the
                 float pool
+              </p>
+              <p className="text-muted-foreground">
+                {f.geofenceLat != null && f.geofenceLng != null && f.geofenceRadiusM != null
+                  ? `Clock-in location check: on, ${f.geofenceRadiusM}m radius`
+                  : "Clock-in location check: off"}
               </p>
             </CardContent>
           </Card>
@@ -184,6 +195,66 @@ function BuildingsPage() {
                 />
               </div>
             ))}
+
+            <div className="grid gap-1 rounded-lg border p-3">
+              <p className="text-sm font-medium">Clock-in location check</p>
+              <p className="text-xs text-muted-foreground">
+                When set, staff who clock in from their own phone outside this radius get flagged
+                for review. Leave blank to turn this off. Wall-clock/kiosk punches are never
+                affected — they are already on-site by definition.
+              </p>
+              <div className="mt-2 grid grid-cols-3 gap-2">
+                <div className="grid gap-1">
+                  <Label htmlFor="b-geofenceLat">Latitude</Label>
+                  <Input
+                    id="b-geofenceLat"
+                    value={form?.["geofenceLat"] ?? ""}
+                    onChange={(e) => setForm({ ...(form ?? {}), geofenceLat: e.target.value })}
+                  />
+                </div>
+                <div className="grid gap-1">
+                  <Label htmlFor="b-geofenceLng">Longitude</Label>
+                  <Input
+                    id="b-geofenceLng"
+                    value={form?.["geofenceLng"] ?? ""}
+                    onChange={(e) => setForm({ ...(form ?? {}), geofenceLng: e.target.value })}
+                  />
+                </div>
+                <div className="grid gap-1">
+                  <Label htmlFor="b-geofenceRadiusM">Radius (m)</Label>
+                  <Input
+                    id="b-geofenceRadiusM"
+                    value={form?.["geofenceRadiusM"] ?? ""}
+                    onChange={(e) => setForm({ ...(form ?? {}), geofenceRadiusM: e.target.value })}
+                  />
+                </div>
+              </div>
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                className="mt-2 w-fit"
+                onClick={() => {
+                  if (typeof navigator === "undefined" || !navigator.geolocation) {
+                    toast.error("This browser can't share its location.");
+                    return;
+                  }
+                  navigator.geolocation.getCurrentPosition(
+                    (pos) =>
+                      setForm({
+                        ...(form ?? {}),
+                        geofenceLat: String(pos.coords.latitude),
+                        geofenceLng: String(pos.coords.longitude),
+                        geofenceRadiusM: form?.["geofenceRadiusM"] || "150",
+                      }),
+                    () => toast.error("Couldn't get your location. Enter it manually instead."),
+                  );
+                }}
+              >
+                Use my current location
+              </Button>
+            </div>
+
             <Button onClick={() => form && saveMut.mutate(form)} disabled={saveMut.isPending}>
               Save building
             </Button>

@@ -15,6 +15,7 @@ import {
   pbjCsv,
   pbjReport,
   punch,
+  type PunchLocation,
   punchReport,
   requestAdvance,
   sendMessage,
@@ -104,10 +105,15 @@ export async function timeClockData(userId: string) {
   };
 }
 
-export async function punchAction(userId: string, assignmentId: string | null, kind: "in" | "out") {
+export async function punchAction(
+  userId: string,
+  assignmentId: string | null,
+  kind: "in" | "out",
+  opts?: { location?: PunchLocation | null | undefined; locationAttempted?: boolean | undefined },
+) {
   const actor = await loadActor(userId);
   const emp = requireEmployee(actor);
-  return punch(emp.id, assignmentId, kind);
+  return punch(emp.id, assignmentId, kind, opts);
 }
 
 export async function punchReportData(userId: string, from?: string, to?: string) {
