@@ -1,6 +1,16 @@
 ﻿// Control room: an administrator-only assistant that can reconfigure the app itself.
-import { POSITION_LABEL, SHIFT_LABEL, type PositionType, type ShiftType } from "./facility";
+import {
+  addDays,
+  applyPolicyOverrides,
+  currentLaborPolicy,
+  POSITION_LABEL,
+  SHIFT_LABEL,
+  type PositionType,
+  type ShiftType,
+} from "./facility";
 import { writeBrandTheme } from "./branding.server";
+import { IMPORT_TEMPLATES, runImportAction } from "./setup.impl.server";
+import { setCensus } from "./workforce.server";
 import {
   db,
   loadActor,
@@ -272,6 +282,57 @@ const TOOLS: Tool[] = [
     },
   },
   {
+    name: "import_staff_roster",
+    description: `Add multiple employees at once - the fast way to set up a new facility's staff instead of asking for them one at a time. When an administrator gives you a staff list (pasted text, a table, a description), turn it into ${IMPORT_TEMPLATES["roster"]!.headers.join(",")} rows (header row first, comma-separated) and call this tool. ${IMPORT_TEMPLATES["roster"]!.help} Position must be nurse, qma or cna; shift must be first, second or third; unit must already exist (create it first with create_unit if it doesn't). Leave a field blank if you don't know it. Example row: ${IMPORT_TEMPLATES["roster"]!.sample.join(",")}`,
+    parameters: obj(
+      {
+        csv: str(
+          "Header row plus one data row per employee, comma-separated (or tab-separated), matching the roster template.",
+        ),
+      },
+      ["csv"],
+    ),
+    run: async (actor, args) => {
+      const result = await runImportAction(actor.userId, {
+        kind: "roster",
+        text: String(args.csv),
+        apply: true,
+      });
+      await logAudit("roster_imported", label(actor), "employees", null, {
+        applied: result.applied,
+        skipped: result.skipped,
+      });
+      return result;
+    },
+  },
+  {
+    name: "set_resident_census",
+    description:
+      "Set how many residents a unit has, which drives HPPD/staffing-level math. Set days to more than 1 to project the same count forward (e.g. for initial setup, before real day-to-day counts start coming in).",
+    parameters: obj(
+      {
+        unit: str("Unit name"),
+        census: num("Number of residents"),
+        days: num("How many days forward to set this count, starting today. Defaults to 1."),
+      },
+      ["unit", "census"],
+    ),
+    run: async (actor, args) => {
+      const unit = await findUnit(String(args.unit));
+      if (!unit) return { error: `No unit named "${String(args.unit)}".` };
+      const days = Math.max(1, Math.min(180, Number(args.days ?? 1)));
+      const start = today();
+      for (let i = 0; i < days; i++) {
+        await setCensus(addDays(start, i), unit.id, Number(args.census));
+      }
+      await logAudit("census_set", label(actor), "unit", unit.id, {
+        census: args.census,
+        days,
+      });
+      return { unit: unit.name, census: Number(args.census), daysSet: days };
+    },
+  },
+  {
     name: "configure_background_system",
     description:
       "Change how the always-on background system behaves: turn it on or off, watch-only mode, the call-off cushion, how many days ahead it auto-fills, how many weeks of schedule it keeps built, and how heavily seniority vs. time-since-last-float count in the float rotation.",
@@ -312,6 +373,70 @@ const TOOLS: Tool[] = [
       "Set the facility-wide PPD goal (care hours per resident day) that the dashboard graph is measured against.",
     parameters: obj({ goal: num("Goal PPD, e.g. 3.6") }, ["goal"]),
     run: async (actor, args) => updatePpdGoal(Number(args.goal), label(actor)),
+  },
+  {
+    name: "set_labor_policy",
+    description:
+      "Set the facility's core labor policy numbers - the ones that actually drive attendance points, rest requirements, overtime and PTO across the whole app. Use this when an administrator describes or pastes in their company's real written policy (attendance policy, overtime policy, PTO/vacation policy, scheduling/rest policy): read the specific numbers out of what they gave you and call this tool with them. Omit any field whose value you don't know or that isn't changing - only the fields you pass are updated, everything else stays as it is.",
+    parameters: obj({
+      lateGraceMinutes: num("Minutes after shift start before an arrival counts as late, e.g. 7"),
+      callOffMinutes: num(
+        "Minutes after shift start before a no-show counts as a call-off rather than just late, e.g. 120",
+      ),
+      latePoints: num("Attendance points charged for a late arrival, e.g. 0.5"),
+      callOffPoints: num("Attendance points charged for a call-off, e.g. 1"),
+      pointRollingMonths: num("How many months an attendance point stays on the record, e.g. 12"),
+      terminationPoints: num(
+        "The point total at which employment is reviewed for termination, e.g. 8",
+      ),
+      ptoMinNoticeDays: num(
+        "Days of advance notice a PTO/vacation request needs before it's auto-approved, e.g. 31",
+      ),
+      minRestHours: num(
+        "Minimum hours of rest required between the end of one shift and the start of the next, e.g. 8",
+      ),
+      overtimeThresholdHours: num("Weekly hours after which time counts as overtime, e.g. 40"),
+    }),
+    run: async (actor, args) => {
+      const fields = [
+        "lateGraceMinutes",
+        "callOffMinutes",
+        "latePoints",
+        "callOffPoints",
+        "pointRollingMonths",
+        "terminationPoints",
+        "ptoMinNoticeDays",
+        "minRestHours",
+        "overtimeThresholdHours",
+      ] as const;
+      const patch: Record<string, number> = {};
+      for (const f of fields) {
+        const v = (args as Record<string, unknown>)[f];
+        if (v !== undefined && v !== null && v !== "") patch[f] = Number(v);
+      }
+      if (Object.keys(patch).length === 0) return { error: "Nothing to change." };
+
+      const existing = await readConfig("policy");
+      const merged = { ...((existing?.value as Record<string, unknown>) ?? {}), ...patch };
+      const { error } = await db.from("app_config").upsert(
+        {
+          key: "policy",
+          value: merged as never,
+          label: "Labor policy: attendance points, rest, overtime, PTO notice",
+          updated_by: label(actor),
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: "key" },
+      );
+      if (error) return { error: error.message };
+      applyPolicyOverrides(patch);
+      await logAudit("policy_changed", label(actor), "app_config", null, { key: "policy", patch });
+      return {
+        updated: patch,
+        policy: currentLaborPolicy(),
+        appliesTo: "the whole app, immediately",
+      };
+    },
   },
   {
     name: "read_app_setting",
@@ -501,7 +626,10 @@ function systemPrompt(actor: Actor) {
   return `You are the Control Room — the administrator-level brain of CoverGrid, a staffing platform for care facilities. You are talking to ${actor.profile?.full_name ?? "an administrator"}, who has full authority over the whole system.
 
 WHAT YOU CAN DO
-You can reshape how the app works with your tools: change required staffing on any unit/shift/position, add or rename units and buildings, set the PPD goal, rewire how the always-on background system behaves, store app-wide settings (including renaming the product itself), add agencies, write house policy, rebuild the schedule and announce changes. These changes take effect for every user immediately.
+You can reshape how the app works with your tools: change required staffing on any unit/shift/position, add or rename units and buildings, set the PPD goal, rewire how the always-on background system behaves, store app-wide settings (including renaming the product itself), add agencies, import a whole staff roster at once, set resident census, set the facility's real labor policy numbers (attendance points, rest hours, overtime threshold, PTO notice), write house policy, rebuild the schedule and announce changes. These changes take effect for every user immediately.
+
+SETTING UP A NEW FACILITY
+When an administrator is getting the app ready for their company — describing or pasting their actual attendance policy, overtime policy, PTO policy, staff list, or resident counts — your job is to read the real numbers and names out of what they gave you and call the matching tools (set_labor_policy, import_staff_roster, set_resident_census, create_unit, set_staffing_requirement) rather than just describing what you would do. Work through it like a checklist: facility and units first, then staffing requirements and census, then the staff roster, then policy numbers. If they paste something messy (an email, a PDF's worth of text, a rough list), do your best to extract it — ask only if a number or name is genuinely missing or ambiguous, never for formatting. After each tool call, say in one line what you set it to so they can catch a misread number.
 
 WHAT YOU CANNOT DO
 You cannot write source code or add brand-new screens on your own. If someone asks for something that needs new code, say so plainly in one line, then offer the closest thing you CAN do right now with your tools — and do it if they say yes.

@@ -55,19 +55,23 @@ export function shiftWindowLabel(shift: ShiftType, position: PositionType): stri
 }
 
 // ---- Attendance policy ----
-export const LATE_GRACE_MINUTES = 7;
-export const CALL_OFF_MINUTES = 120;
-export const LATE_POINTS = 0.5;
-export const CALL_OFF_POINTS = 1;
+// These start as sensible defaults but are meant to be overwritten per facility
+// via applyPolicyOverrides() — see the set_labor_policy control-room tool, which
+// lets an administrator hand the AI their actual written policy and have it
+// reconfigure these numbers instead of a developer editing source code.
+export let LATE_GRACE_MINUTES = 7;
+export let CALL_OFF_MINUTES = 120;
+export let LATE_POINTS = 0.5;
+export let CALL_OFF_POINTS = 1;
 
 /** Points fall off after a rolling twelve months. */
-export const POINT_ROLLING_MONTHS = 12;
+export let POINT_ROLLING_MONTHS = 12;
 
 /** The point total at which employment is reviewed for termination. */
-export const TERMINATION_POINTS = 8;
+export let TERMINATION_POINTS = 8;
 
 /** Progressive attendance steps. Employees are notified as they reach each one. */
-export const ATTENDANCE_LEVELS: { points: number; label: string; detail: string }[] = [
+export let ATTENDANCE_LEVELS: { points: number; label: string; detail: string }[] = [
   {
     points: 3,
     label: "Verbal coaching",
@@ -84,11 +88,72 @@ export const ATTENDANCE_LEVELS: { points: number; label: string; detail: string 
     detail: "One more occurrence puts your employment under review.",
   },
   {
-    points: TERMINATION_POINTS,
+    points: 8,
     label: "Determination point",
     detail: "Employment is reviewed at this total.",
   },
 ];
+
+export type LaborPolicy = {
+  lateGraceMinutes: number;
+  callOffMinutes: number;
+  latePoints: number;
+  callOffPoints: number;
+  pointRollingMonths: number;
+  terminationPoints: number;
+  attendanceLevels: { points: number; label: string; detail: string }[];
+  ptoMinNoticeDays: number;
+  minRestHours: number;
+  overtimeThresholdHours: number;
+};
+
+export function currentLaborPolicy(): LaborPolicy {
+  return {
+    lateGraceMinutes: LATE_GRACE_MINUTES,
+    callOffMinutes: CALL_OFF_MINUTES,
+    latePoints: LATE_POINTS,
+    callOffPoints: CALL_OFF_POINTS,
+    pointRollingMonths: POINT_ROLLING_MONTHS,
+    terminationPoints: TERMINATION_POINTS,
+    attendanceLevels: ATTENDANCE_LEVELS,
+    ptoMinNoticeDays: PTO_MIN_NOTICE_DAYS,
+    minRestHours: MIN_REST_HOURS,
+    overtimeThresholdHours: OVERTIME_THRESHOLD_HOURS,
+  };
+}
+
+/**
+ * Overwrites the module's live policy numbers in place. Every function in this
+ * codebase that reads e.g. OVERTIME_THRESHOLD_HOURS sees the new value on its
+ * next call — ES module named imports are live bindings, not snapshots, so
+ * nothing downstream needs to change. Called once per process from
+ * ensurePolicyLoaded() (staffing.server.ts) and by the set_labor_policy tool
+ * right after it writes the new values to app_config.
+ */
+export function applyPolicyOverrides(overrides: Partial<LaborPolicy>) {
+  if (overrides.lateGraceMinutes !== undefined) LATE_GRACE_MINUTES = overrides.lateGraceMinutes;
+  if (overrides.callOffMinutes !== undefined) CALL_OFF_MINUTES = overrides.callOffMinutes;
+  if (overrides.latePoints !== undefined) LATE_POINTS = overrides.latePoints;
+  if (overrides.callOffPoints !== undefined) CALL_OFF_POINTS = overrides.callOffPoints;
+  if (overrides.pointRollingMonths !== undefined)
+    POINT_ROLLING_MONTHS = overrides.pointRollingMonths;
+  if (overrides.terminationPoints !== undefined) {
+    TERMINATION_POINTS = overrides.terminationPoints;
+    if (overrides.attendanceLevels === undefined) {
+      const last = ATTENDANCE_LEVELS[ATTENDANCE_LEVELS.length - 1];
+      if (last)
+        ATTENDANCE_LEVELS = [
+          ...ATTENDANCE_LEVELS.slice(0, -1),
+          { ...last, points: TERMINATION_POINTS },
+        ];
+    }
+  }
+  if (overrides.attendanceLevels !== undefined) ATTENDANCE_LEVELS = overrides.attendanceLevels;
+  if (overrides.ptoMinNoticeDays !== undefined) PTO_MIN_NOTICE_DAYS = overrides.ptoMinNoticeDays;
+  if (overrides.minRestHours !== undefined) MIN_REST_HOURS = overrides.minRestHours;
+  if (overrides.overtimeThresholdHours !== undefined)
+    OVERTIME_THRESHOLD_HOURS = overrides.overtimeThresholdHours;
+}
 
 export function attendanceStatus(total: number) {
   const reached = [...ATTENDANCE_LEVELS].reverse().find((l) => total >= l.points) ?? null;
@@ -113,11 +178,11 @@ export function attendanceStatus(total: number) {
 }
 
 /** More than one month of notice is required for PTO. */
-export const PTO_MIN_NOTICE_DAYS = 31;
+export let PTO_MIN_NOTICE_DAYS = 31;
 
 /** Minimum rest between the end of one shift and the start of the next. */
-export const MIN_REST_HOURS = 8;
-export const OVERTIME_THRESHOLD_HOURS = 40;
+export let MIN_REST_HOURS = 8;
+export let OVERTIME_THRESHOLD_HOURS = 40;
 
 export function classifyArrival(minutesAfterStart: number): "on_time" | "late" | "call_off" {
   if (minutesAfterStart > CALL_OFF_MINUTES) return "call_off";

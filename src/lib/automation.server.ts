@@ -13,6 +13,7 @@ import {
 import {
   autoFillGaps,
   db,
+  ensurePolicyLoaded,
   findCandidates,
   describeCoverageRow,
   getCoverage,
@@ -322,6 +323,7 @@ export async function runAutomationCycle(options?: {
   buffer?: number;
   source?: "manual" | "autopilot" | "apply";
 }) {
+  await ensurePolicyLoaded();
   const settings = await getAutopilotSettings();
   if (options?.source === "autopilot" && !settings.autopilotEnabled) {
     return {

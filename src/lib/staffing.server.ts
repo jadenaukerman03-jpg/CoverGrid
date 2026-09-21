@@ -2,6 +2,7 @@
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import {
   addDays,
+  applyPolicyOverrides,
   CALL_OFF_POINTS,
   coverageState,
   dateRange,
@@ -17,6 +18,7 @@ import {
   startOfWeek,
   toISODate,
   type CoverageRow,
+  type LaborPolicy,
   type PositionType,
   type ShiftType,
 } from "./facility";
@@ -53,7 +55,26 @@ export function today(): string {
   return toISODate(new Date());
 }
 
+let policyLoadedAt = 0;
+const POLICY_TTL_MS = 30_000;
+
+/**
+ * Loads this facility's labor policy overrides (attendance points, rest
+ * hours, overtime threshold, PTO notice, etc.) from app_config into the live
+ * module state in facility.ts. Cheap after the first call within the TTL, so
+ * it's safe to call from every hot path that cares about these numbers.
+ */
+export async function ensurePolicyLoaded(force = false): Promise<void> {
+  if (!force && Date.now() - policyLoadedAt < POLICY_TTL_MS) return;
+  const { data } = await db.from("app_config").select("value").eq("key", "policy").maybeSingle();
+  if (data?.value && typeof data.value === "object") {
+    applyPolicyOverrides(data.value as Partial<LaborPolicy>);
+  }
+  policyLoadedAt = Date.now();
+}
+
 export async function loadActor(userId: string): Promise<Actor> {
+  await ensurePolicyLoaded();
   const [roles, employee, profile] = await Promise.all([
     db.from("user_roles").select("role").eq("user_id", userId),
     db.from("employees").select("*").eq("user_id", userId).maybeSingle(),

@@ -11,7 +11,7 @@ import {
   type PositionType,
   type ShiftType,
 } from "./facility";
-import { db, logAudit, today, unitMap } from "./staffing.server";
+import { db, ensurePolicyLoaded, logAudit, today, unitMap } from "./staffing.server";
 
 export const OT_MULTIPLIER = 1.5;
 /** Share of already-earned net wages an employee may draw before payday. */
@@ -250,6 +250,7 @@ export async function punch(
   kind: "in" | "out",
   opts?: { location?: PunchLocation | null | undefined; locationAttempted?: boolean | undefined },
 ) {
+  await ensurePolicyLoaded();
   const now = new Date();
   const date = today();
   const { data: open } = await db
