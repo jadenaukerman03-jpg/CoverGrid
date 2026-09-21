@@ -63,7 +63,7 @@ export const CONTROLS: Control[] = [
     id: "CC6.6",
     area: "Access",
     control:
-      "Passwords are checked against known breached passwords, must be at least eight characters, and repeated failures lock the email for fifteen minutes.",
+      "Passwords must be at least eight characters, and repeated failures lock the email for fifteen minutes.",
     evidence: "Sign-in trouble panel",
   },
   {
