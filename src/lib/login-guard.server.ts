@@ -111,3 +111,43 @@ export async function purgeOldAttempts() {
   const cutoff = new Date(Date.now() - 86_400_000).toISOString();
   await supabaseAdmin.from("login_attempts").delete().lt("created_at", cutoff);
 }
+
+export type SignInResult =
+  | { ok: true; session: { access_token: string; refresh_token: string } }
+  | { ok: false; message: string; gate: LoginGate | null };
+
+/**
+ * The only place a password is ever checked. Runs the lockout gate and the
+ * real credential check as one atomic server-side step so the lockout can't
+ * be skipped by calling Supabase Auth directly from the browser.
+ */
+export async function attemptSignIn(
+  email: string,
+  password: string,
+  ip: string,
+): Promise<SignInResult> {
+  const cleanEmail = email.trim().toLowerCase();
+  const gate = await checkLoginGate(cleanEmail, ip);
+  if (!gate.allowed) {
+    return { ok: false, message: gate.message ?? "Sign-in is on hold for this email.", gate };
+  }
+
+  const { data, error } = await supabaseAdmin.auth.signInWithPassword({
+    email: cleanEmail,
+    password,
+  });
+  await recordLoginAttempt(cleanEmail, ip, !error, error?.message);
+
+  if (error || !data.session) {
+    const nextGate = await checkLoginGate(cleanEmail, ip);
+    return { ok: false, message: error?.message ?? "Sign-in failed.", gate: nextGate };
+  }
+
+  return {
+    ok: true,
+    session: {
+      access_token: data.session.access_token,
+      refresh_token: data.session.refresh_token,
+    },
+  };
+}

@@ -322,11 +322,14 @@ function impactSentence(c: ConnectionRow): string {
 // --- Last known good ------------------------------------------------------
 
 export async function lastKnownGood(kindOrSlug: string) {
-  const { data: conns } = await db
-    .from("integration_connections")
-    .select("id,slug,kind,name")
-    .or(`kind.eq.${kindOrSlug},slug.eq.${kindOrSlug}`);
-  const ids = (conns ?? []).map((c) => c.id as string);
+  // Two separate .eq() lookups instead of a single .or() filter so kindOrSlug can
+  // never be parsed as PostgREST filter syntax (commas/operators in the value).
+  const [byKind, bySlug] = await Promise.all([
+    db.from("integration_connections").select("id,slug,kind,name").eq("kind", kindOrSlug),
+    db.from("integration_connections").select("id,slug,kind,name").eq("slug", kindOrSlug),
+  ]);
+  const conns = [...(byKind.data ?? []), ...(bySlug.data ?? [])];
+  const ids = [...new Set(conns.map((c) => c.id as string))];
   if (!ids.length) return null;
   const { data } = await db
     .from("integration_snapshots")

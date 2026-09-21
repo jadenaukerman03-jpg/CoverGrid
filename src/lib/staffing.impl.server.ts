@@ -369,7 +369,15 @@ export async function validateSwitchQuery(
   assignmentId: string,
   coveringId: string,
 ) {
-  await loadActor(userId);
+  const actor = await loadActor(userId);
+  const { data: a } = await db
+    .from("shift_assignments")
+    .select("employee_id")
+    .eq("id", assignmentId)
+    .maybeSingle();
+  if (!a) throw new Error("Shift not found.");
+  if (!actor.isManager && a.employee_id !== actor.employee?.id)
+    throw new Error("You can only check a switch for your own shift.");
   const res = await validateSwitch(assignmentId, coveringId);
   return { valid: res.valid, problems: res.problems, checks: res.checks };
 }

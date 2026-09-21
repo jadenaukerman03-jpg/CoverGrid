@@ -244,8 +244,11 @@ export async function updateScreeningAction(
       ...(input.reference === undefined ? {} : { reference: input.reference }),
       ...(input.result === undefined ? {} : { result: input.result }),
       completed_on:
-        input.completedOn ??
-        (input.status === "passed" || input.status === "failed" ? today() : null),
+        input.completedOn !== undefined
+          ? input.completedOn
+          : input.status === "passed" || input.status === "failed"
+            ? today()
+            : null,
     })
     .eq("id", input.id);
   await logAudit("screening_updated", label(actor), "screening_check", input.id, {

@@ -20,7 +20,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { listBuildings } from "@/lib/auth-public.functions";
-import { checkLoginAllowed, reportLoginResult } from "@/lib/login-guard.functions";
+import { signInGuarded } from "@/lib/login-guard.functions";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -87,8 +87,7 @@ function AuthPage() {
   const [lockNotice, setLockNotice] = useState<string | null>(null);
   const human = useHumanCheck();
 
-  const checkGate = useServerFn(checkLoginAllowed);
-  const reportResult = useServerFn(reportLoginResult);
+  const signIn_ = useServerFn(signInGuarded);
 
   const loadBuildings = useServerFn(listBuildings);
   const { data: buildings = [] } = useQuery({
@@ -129,37 +128,32 @@ function AuthPage() {
     const cleanEmail = email.trim();
     setBusy(true);
 
-    const gate = await checkGate({ data: { email: cleanEmail } }).catch(() => null);
-    if (gate && !gate.allowed) {
-      setBusy(false);
-      setLockNotice(gate.message);
-      toast.error(gate.message ?? "Sign-in is on hold for this email.");
-      return;
-    }
-
-    const { error } = await supabase.auth.signInWithPassword({ email: cleanEmail, password });
-    const after = await reportResult({
-      data: {
-        email: cleanEmail,
-        succeeded: !error,
-        ...(error ? { reason: error.message.slice(0, 200) } : {}),
-      },
-    }).catch(() => null);
+    const result = await signIn_({ data: { email: cleanEmail, password } }).catch(() => ({
+      ok: false as const,
+      message: "Sign-in failed. Try again.",
+      gate: null,
+    }));
     setBusy(false);
 
-    if (error) {
-      if (after && !after.allowed) {
-        setLockNotice(after.message);
-        toast.error(after.message ?? "Too many wrong passwords.");
+    if (!result.ok) {
+      if (result.gate && !result.gate.allowed) {
+        setLockNotice(result.message);
+        toast.error(result.message);
         return;
       }
-      const left = after?.triesLeft ?? null;
+      const left = result.gate?.triesLeft ?? null;
       setLockNotice(
         left !== null && left <= 2
           ? `${left} ${left === 1 ? "try" : "tries"} left before sign-in is put on hold. Use "Forgot password" if you're stuck.`
           : null,
       );
-      toast.error(friendlyAuthError(error.message));
+      toast.error(friendlyAuthError(result.message));
+      return;
+    }
+
+    const { error } = await supabase.auth.setSession(result.session);
+    if (error) {
+      toast.error("Signed in, but couldn't start the session. Try again.");
       return;
     }
 

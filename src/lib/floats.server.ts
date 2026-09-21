@@ -31,12 +31,14 @@ export async function employeeProfile(employeeId: string, opts: { includePrivate
     opts.includePrivate
       ? attendanceTotal(employeeId)
       : Promise.resolve({ total: 0, events: [] as unknown[] }),
-    db
-      .from("employee_notes")
-      .select("*")
-      .eq("employee_id", employeeId)
-      .order("pinned", { ascending: false })
-      .order("created_at", { ascending: false }),
+    opts.includePrivate
+      ? db
+          .from("employee_notes")
+          .select("*")
+          .eq("employee_id", employeeId)
+          .order("pinned", { ascending: false })
+          .order("created_at", { ascending: false })
+      : Promise.resolve({ data: [] as Array<Record<string, unknown>> }),
   ]);
   const upcoming = shifts.filter((s) => s.date >= today());
   const past = shifts.filter((s) => s.date < today()).reverse();

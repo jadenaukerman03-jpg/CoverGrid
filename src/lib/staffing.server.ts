@@ -279,6 +279,19 @@ function restConflict(
       return `Works third shift the night before (needs ${MIN_REST_HOURS}h rest)`;
     if (target.shift === "third" && addDays(target.date, 1) === e.shift_date && e.shift === "first")
       return `Scheduled first shift the next morning (needs ${MIN_REST_HOURS}h rest)`;
+    // Second shift ends late evening (10-10:30pm): also blocks first shift the next day.
+    if (
+      e.shift === "second" &&
+      addDays(e.shift_date, 1) === target.date &&
+      target.shift === "first"
+    )
+      return `Works second shift the evening before (needs ${MIN_REST_HOURS}h rest)`;
+    if (
+      target.shift === "second" &&
+      addDays(target.date, 1) === e.shift_date &&
+      e.shift === "first"
+    )
+      return `Scheduled first shift the next morning (needs ${MIN_REST_HOURS}h rest)`;
   }
   return null;
 }

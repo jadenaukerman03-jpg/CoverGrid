@@ -215,7 +215,7 @@ export async function undoActivity(auditId: string, actorLabel: string) {
       .select("id")
       .eq("assignment_id", entityId)
       .eq("kind", "call_off")
-      .order("created_at", { ascending: false })
+      .order("occurred_at", { ascending: false })
       .limit(1);
     if (ev?.[0]) await db.from("attendance_events").delete().eq("id", ev[0].id);
     outcome = "The call-off and its attendance point were removed and the shift was restored.";
@@ -225,7 +225,7 @@ export async function undoActivity(auditId: string, actorLabel: string) {
       .select("id")
       .eq("assignment_id", entityId)
       .eq("kind", "late")
-      .order("created_at", { ascending: false })
+      .order("occurred_at", { ascending: false })
       .limit(1);
     if (ev?.[0]) await db.from("attendance_events").delete().eq("id", ev[0].id);
     outcome = "The late arrival and its half point were removed.";

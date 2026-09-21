@@ -3,6 +3,7 @@ import { getRequest } from "@tanstack/react-start/server";
 import { z } from "zod";
 
 const emailInput = z.object({ email: z.string().trim().email().max(255) });
+const signInInput = emailInput.extend({ password: z.string().min(1).max(200) });
 
 function callerIp(): string {
   try {
@@ -19,25 +20,15 @@ function callerIp(): string {
   }
 }
 
-/** Called before a sign-in try. Says whether this email is currently on hold. */
-export const checkLoginAllowed = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => emailInput.parse(d))
+/**
+ * The only way the app signs a user in. Checks the lockout gate and verifies
+ * the password server-side as one step, so the lockout can't be bypassed by
+ * calling Supabase Auth directly from the browser.
+ */
+export const signInGuarded = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => signInInput.parse(d))
   .handler(async ({ data }) => {
-    const { checkLoginGate, purgeOldAttempts } = await import("./login-guard.server");
+    const { attemptSignIn, purgeOldAttempts } = await import("./login-guard.server");
     if (Math.random() < 0.05) await purgeOldAttempts();
-    return checkLoginGate(data.email, callerIp());
-  });
-
-/** Called after a sign-in try, with how it went. */
-export const reportLoginResult = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) =>
-    emailInput.extend({ succeeded: z.boolean(), reason: z.string().max(200).optional() }).parse(d),
-  )
-  .handler(async ({ data }) => {
-    const { checkLoginGate, recordLoginAttempt } = await import("./login-guard.server");
-    const ip = callerIp();
-    await recordLoginAttempt(data.email, ip, data.succeeded, data.reason);
-    if (data.succeeded)
-      return { allowed: true, minutesLeft: 0, triesLeft: 5, lockedUntil: null, message: null };
-    return checkLoginGate(data.email, ip);
+    return attemptSignIn(data.email, data.password, callerIp());
   });
