@@ -233,6 +233,14 @@ export type CoverageRow = {
   target?: number;
   /** How many more people are needed to reach the buffered target. */
   bufferGap?: number;
+  /**
+   * What today's actual census and the unit's target HPPD suggest this slot
+   * should be, scaled off the standing requirement's own shift/position mix.
+   * Advisory only — never changes `required`, which stays whatever a manager
+   * configured as the standing target. Undefined when there's no census on
+   * file for this unit/date yet.
+   */
+  recommended?: number;
   state: "understaffed" | "staffed" | "overstaffed";
 };
 

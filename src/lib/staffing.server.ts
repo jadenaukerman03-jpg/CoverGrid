@@ -109,7 +109,10 @@ export function requireManager(actor: Actor) {
 }
 
 export async function unitMap() {
-  const { data } = await db.from("units").select("id,name,sort_order").order("sort_order");
+  const { data } = await db
+    .from("units")
+    .select("id,name,sort_order,target_hppd")
+    .order("sort_order");
   const byId = new Map<string, string>();
   (data ?? []).forEach((u) => byId.set(u.id, u.name));
   return { units: data ?? [], byId };
@@ -134,14 +137,15 @@ export async function logAudit(
 // ---------------- Coverage ----------------
 
 export async function getCoverage(from: string, to: string, buffer = 0): Promise<CoverageRow[]> {
-  const { byId } = await unitMap();
-  const [{ data: reqs }, { data: asg }] = await Promise.all([
+  const { units, byId } = await unitMap();
+  const [{ data: reqs }, { data: asg }, { data: census }] = await Promise.all([
     db.from("staffing_requirements").select("unit_id,position,shift,required_count"),
     db
       .from("shift_assignments")
       .select("shift_date,shift,unit_id,position,status,employee_id,agency_staff_id,is_training")
       .gte("shift_date", from)
       .lte("shift_date", to),
+    db.from("census_days").select("date,unit_id,census").gte("date", from).lte("date", to),
   ]);
   const filledKey = new Map<string, number>();
   for (const a of asg ?? []) {
@@ -153,11 +157,31 @@ export async function getCoverage(from: string, to: string, buffer = 0): Promise
     filledKey.set(k, (filledKey.get(k) ?? 0) + 1);
   }
 
+  // Total hours the standing requirements already imply per unit, so a census-driven
+  // recommendation can scale that same shift/position mix rather than inventing one.
+  const configuredHoursByUnit = new Map<string, number>();
+  for (const r of reqs ?? []) {
+    const hours = r.required_count * shiftHours(r.position as PositionType);
+    configuredHoursByUnit.set(r.unit_id, (configuredHoursByUnit.get(r.unit_id) ?? 0) + hours);
+  }
+  const targetHppdByUnit = new Map(units.map((u) => [u.id, Number(u.target_hppd ?? 3.6)]));
+  const censusByKey = new Map((census ?? []).map((c) => [`${c.date}|${c.unit_id}`, c.census]));
+
   const rows: CoverageRow[] = [];
   for (const date of dateRange(from, to)) {
     for (const r of reqs ?? []) {
       const k = `${date}|${r.shift}|${r.unit_id}|${r.position}`;
       const filled = filledKey.get(k) ?? 0;
+
+      const todaysCensus = censusByKey.get(`${date}|${r.unit_id}`);
+      const configuredHours = configuredHoursByUnit.get(r.unit_id) ?? 0;
+      let recommended: number | undefined;
+      if (todaysCensus !== undefined && configuredHours > 0) {
+        const targetHours = todaysCensus * (targetHppdByUnit.get(r.unit_id) ?? 3.6);
+        const scale = targetHours / configuredHours;
+        recommended = Math.max(0, Math.round(r.required_count * scale));
+      }
+
       rows.push({
         date,
         shift: r.shift as ShiftType,
@@ -169,6 +193,7 @@ export async function getCoverage(from: string, to: string, buffer = 0): Promise
         gap: Math.max(0, r.required_count - filled),
         target: r.required_count + buffer,
         bufferGap: Math.max(0, r.required_count + buffer - filled),
+        ...(recommended !== undefined ? { recommended } : {}),
         state: coverageState(r.required_count, filled),
       });
     }

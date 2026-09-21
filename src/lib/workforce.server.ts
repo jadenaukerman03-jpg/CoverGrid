@@ -79,9 +79,7 @@ export async function laborReport(from: string, to: string) {
   const rateOf = new Map((emps ?? []).map((e) => [e.id, Number(e.hourly_rate)]));
   const typeOf = new Map((emps ?? []).map((e) => [e.id, e.employment_type as string]));
   const censusOf = new Map((census ?? []).map((c) => [`${c.date}|${c.unit_id}`, c.census]));
-  const targetOf = new Map(
-    units.map((u) => [u.id, Number((u as { target_hppd?: number }).target_hppd ?? 3.6)]),
-  );
+  const targetOf = new Map(units.map((u) => [u.id, Number(u.target_hppd ?? 3.6)]));
 
   // Weekly running hours per employee to attribute overtime premium.
   const running = new Map<string, number>();

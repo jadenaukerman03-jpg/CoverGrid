@@ -18,6 +18,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { POSITION_LABEL } from "@/lib/facility";
 import {
   assignReplacementFn,
   autoFillGapsFn,
@@ -175,9 +176,14 @@ function DashboardPage() {
                     <TableRow key={`${r.unitName}-${r.shift}-${r.position}`}>
                       <TableCell>{r.unitName}</TableCell>
                       <TableCell className="capitalize">{r.shift}</TableCell>
-                      <TableCell>{r.position === "cna" ? "CNA" : "Nurse"}</TableCell>
+                      <TableCell>{POSITION_LABEL[r.position]}</TableCell>
                       <TableCell className="text-right font-medium text-destructive">
                         {r.filled} / {r.required}
+                        {r.recommended !== undefined && r.recommended !== r.required && (
+                          <span className="ml-2 font-normal text-muted-foreground">
+                            (today's census suggests {r.recommended})
+                          </span>
+                        )}
                       </TableCell>
                     </TableRow>
                   ))}
