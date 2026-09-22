@@ -175,10 +175,13 @@ export async function kioskPunch(input: {
     .limit(1)
     .maybeSingle();
 
+  // Excludes punchSweep()'s "no_punch" rows (clock_in also null for those) -
+  // see the matching comment in workforce.server.ts's punch().
   const { data: open } = await db
     .from("time_punches")
     .select("id")
     .eq("employee_id", emp.id)
+    .not("clock_in", "is", null)
     .is("clock_out", null)
     .limit(1)
     .maybeSingle();

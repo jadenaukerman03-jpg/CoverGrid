@@ -253,10 +253,15 @@ export async function punch(
   await ensurePolicyLoaded();
   const now = new Date();
   const date = today();
+  // Not just clock_out is null: punchSweep()'s "no_punch" rows for a missed
+  // shift also have clock_in left null, and would otherwise look "open" here
+  // too - the next real clock-in would then read as a clock-out against a
+  // null clock_in (epoch), computing decades of "hours worked".
   const { data: open } = await db
     .from("time_punches")
     .select("*")
     .eq("employee_id", employeeId)
+    .not("clock_in", "is", null)
     .is("clock_out", null)
     .order("created_at", { ascending: false })
     .limit(1)

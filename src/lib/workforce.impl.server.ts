@@ -66,7 +66,10 @@ export async function timeClockData(userId: string) {
       .from("time_punches")
       .select("*")
       .eq("employee_id", emp.id)
+      .not("clock_in", "is", null)
       .is("clock_out", null)
+      .order("created_at", { ascending: false })
+      .limit(1)
       .maybeSingle(),
     db
       .from("shift_assignments")
