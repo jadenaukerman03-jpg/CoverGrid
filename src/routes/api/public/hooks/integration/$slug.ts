@@ -4,7 +4,7 @@ import { createFileRoute } from "@tanstack/react-router";
  * One inbound endpoint per registered outside system.
  *
  * POST /api/public/hooks/integration/<slug>
- * Header: apikey: <project publishable key>
+ * Header: apikey: <the project's SUPABASE_SERVICE_ROLE_KEY - never the publishable key, which is public>
  * Body:   { "rows": [...] }  — or a raw CSV body with Content-Type: text/csv
  *
  * Every call is recorded as a sync, updates the connection's health, and stores a
@@ -15,13 +15,12 @@ export const Route = createFileRoute("/api/public/hooks/integration/$slug")({
     handlers: {
       POST: async ({ request, params }) => {
         const headers = { "Content-Type": "application/json", "Cache-Control": "no-store" };
+        // The publishable/anon key ships in every browser bundle, so it can't
+        // gate a webhook that writes integration data - only the service-role
+        // key is actually private.
         const key = request.headers.get("apikey");
-        const accepted = [
-          process.env["SUPABASE_ANON_KEY"],
-          process.env["SUPABASE_PUBLISHABLE_KEY"],
-          process.env["VITE_SUPABASE_PUBLISHABLE_KEY"],
-        ].filter(Boolean) as string[];
-        if (!key || !accepted.includes(key)) {
+        const secret = process.env["SUPABASE_SERVICE_ROLE_KEY"];
+        if (!key || !secret || key !== secret) {
           return new Response(JSON.stringify({ ok: false, error: "Unauthorized" }), {
             status: 401,
             headers,
@@ -76,7 +75,7 @@ export const Route = createFileRoute("/api/public/hooks/integration/$slug")({
             ok: true,
             endpoint: `/api/public/hooks/integration/${params.slug}`,
             method: "POST",
-            auth: "apikey header",
+            auth: "apikey header, set to the project's service-role key",
             body: { rows: [] },
           }),
           { headers },

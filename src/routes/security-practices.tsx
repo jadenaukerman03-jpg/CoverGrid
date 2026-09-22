@@ -53,7 +53,7 @@ const CONTROLS: Array<{ title: string; body: string }> = [
   },
   {
     title: "Kiosks and public endpoints are verified",
-    body: "Time-clock kiosks pair with a device key and are rejected without a valid one. Endpoints that outside systems call — census feeds and message delivery callbacks — verify the caller's signature before anything is written.",
+    body: "Time-clock kiosks pair with a device key and are rejected without a valid one. Feeds from outside systems, like census and payroll connectors, require a private key that is never exposed to a browser. Text message delivery callbacks are verified against the sender's cryptographic signature.",
   },
 ];
 

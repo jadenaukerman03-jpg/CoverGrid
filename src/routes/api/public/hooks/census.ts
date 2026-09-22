@@ -6,7 +6,7 @@ import { createFileRoute } from "@tanstack/react-router";
  * nobody typing anything.
  *
  * POST { "source": "pointclickcare", "rows": [{ "date": "2026-08-18", "unit": "Birch", "census": 41 }] }
- * Header: apikey: <project publishable key>
+ * Header: apikey: <the project's SUPABASE_SERVICE_ROLE_KEY - never the publishable key, which is public>
  * A raw CSV body (Content-Type: text/csv) is accepted too.
  */
 export const Route = createFileRoute("/api/public/hooks/census")({
@@ -14,13 +14,13 @@ export const Route = createFileRoute("/api/public/hooks/census")({
     handlers: {
       POST: async ({ request }) => {
         const headers = { "Content-Type": "application/json", "Cache-Control": "no-store" };
+        // The publishable/anon key ships in every browser bundle, so it can't
+        // gate a webhook that writes census data - only the service-role key
+        // is actually private. Give the outside system this key as its own
+        // "apikey" credential, separate from anything used client-side.
         const key = request.headers.get("apikey");
-        const accepted = [
-          process.env["SUPABASE_ANON_KEY"],
-          process.env["SUPABASE_PUBLISHABLE_KEY"],
-          process.env["VITE_SUPABASE_PUBLISHABLE_KEY"],
-        ].filter(Boolean) as string[];
-        if (!key || !accepted.includes(key)) {
+        const secret = process.env["SUPABASE_SERVICE_ROLE_KEY"];
+        if (!key || !secret || key !== secret) {
           return new Response(JSON.stringify({ ok: false, error: "Unauthorized" }), {
             status: 401,
             headers,

@@ -8,6 +8,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { hireApplicantFn } from "@/lib/onboarding.functions";
 import {
@@ -65,6 +72,7 @@ function HiringPage() {
   const [applicantName, setApplicantName] = useState("");
   const [applicantNotes, setApplicantNotes] = useState("");
   const [applicantEmail, setApplicantEmail] = useState("");
+  const [applicantPostingId, setApplicantPostingId] = useState("");
 
   const { data, error } = useQuery({ queryKey: ["hiring"], queryFn: () => load() });
 
@@ -94,7 +102,7 @@ function HiringPage() {
     mutationFn: () =>
       addApplicant({
         data: {
-          postingId: data?.postings[0]?.id ?? null,
+          postingId: applicantPostingId,
           fullName: applicantName,
           email: applicantEmail,
           notes: applicantNotes,
@@ -106,6 +114,7 @@ function HiringPage() {
       setApplicantName("");
       setApplicantNotes("");
       setApplicantEmail("");
+      setApplicantPostingId("");
       void qc.invalidateQueries({ queryKey: ["hiring"] });
     },
     onError: (e: Error) => toast.error(e.message),
@@ -200,6 +209,18 @@ function HiringPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
+            <Select value={applicantPostingId} onValueChange={setApplicantPostingId}>
+              <SelectTrigger>
+                <SelectValue placeholder="Which requisition is this applicant for?" />
+              </SelectTrigger>
+              <SelectContent>
+                {(data?.postings ?? []).map((p) => (
+                  <SelectItem key={p.id} value={p.id}>
+                    {p.title}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <div className="grid gap-3 sm:grid-cols-2">
               <Input
                 placeholder="Full name"
@@ -219,7 +240,7 @@ function HiringPage() {
             />
             <Button
               variant="secondary"
-              disabled={!applicantName || applicantMutation.isPending}
+              disabled={!applicantName || !applicantPostingId || applicantMutation.isPending}
               onClick={() => applicantMutation.mutate()}
             >
               Screen applicant

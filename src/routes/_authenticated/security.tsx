@@ -542,9 +542,11 @@ function SecurityPage() {
                     variant={
                       it.severity === "low"
                         ? "outline"
-                        : it.severity === "critical"
-                          ? "destructive"
-                          : "secondary"
+                        : it.severity === "medium"
+                          ? "secondary"
+                          : it.severity === "high"
+                            ? "default"
+                            : "destructive"
                     }
                   >
                     {it.severity}

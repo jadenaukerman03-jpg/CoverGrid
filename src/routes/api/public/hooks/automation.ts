@@ -4,13 +4,12 @@ export const Route = createFileRoute("/api/public/hooks/automation")({
   server: {
     handlers: {
       POST: async ({ request }) => {
+        // The publishable/anon key ships in every browser bundle, so it can't
+        // gate a webhook that mutates data - only the service-role key is
+        // actually private.
         const key = request.headers.get("apikey");
-        const accepted = [
-          process.env["SUPABASE_ANON_KEY"],
-          process.env["SUPABASE_PUBLISHABLE_KEY"],
-          process.env["VITE_SUPABASE_PUBLISHABLE_KEY"],
-        ].filter(Boolean) as string[];
-        if (!key || !accepted.includes(key)) {
+        const secret = process.env["SUPABASE_SERVICE_ROLE_KEY"];
+        if (!key || !secret || key !== secret) {
           return new Response(JSON.stringify({ error: "Unauthorized" }), {
             status: 401,
             headers: { "Content-Type": "application/json" },
