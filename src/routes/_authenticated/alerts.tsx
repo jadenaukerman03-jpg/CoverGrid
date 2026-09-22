@@ -16,6 +16,7 @@ import {
   rotateClockKeyFn,
   saveClockFn,
   sendTestTextFn,
+  setBadgeFn,
   updateMessagingSettingsFn,
 } from "@/lib/platform.functions";
 
@@ -55,9 +56,13 @@ function AlertsPage() {
   const flush = useServerFn(flushOutboxFn);
   const saveClock = useServerFn(saveClockFn);
   const rotate = useServerFn(rotateClockKeyFn);
+  const setBadge = useServerFn(setBadgeFn);
 
   const [phone, setPhone] = useState("");
   const [clockName, setClockName] = useState("");
+  const [badgeDrafts, setBadgeDrafts] = useState<Record<string, { number: string; pin: string }>>(
+    {},
+  );
 
   const outbox = useQuery({ queryKey: ["outbox"], queryFn: () => loadOutbox() });
   const clocks = useQuery({ queryKey: ["clocks"], queryFn: () => loadClocks() });
@@ -120,6 +125,31 @@ function AlertsPage() {
     },
     onError: (e: Error) => toast.error(e.message),
   });
+
+  const badgeMutation = useMutation({
+    mutationFn: (v: { employeeId: string; clockInNumber: string; pin: string }) =>
+      setBadge({ data: v }),
+    onSuccess: (_r, v) => {
+      toast.success("Clock-in number and PIN saved.");
+      setBadgeDrafts((d) => {
+        const next = { ...d };
+        delete next[v.employeeId];
+        return next;
+      });
+      refresh();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  function draftFor(employeeId: string) {
+    return badgeDrafts[employeeId] ?? { number: "", pin: "" };
+  }
+  function setDraft(employeeId: string, patch: Partial<{ number: string; pin: string }>) {
+    setBadgeDrafts((d) => ({ ...d, [employeeId]: { ...draftFor(employeeId), ...patch } }));
+  }
+  function randomPin() {
+    return String(Math.floor(1000 + Math.random() * 9000));
+  }
 
   if (outbox.error)
     return <p className="text-muted-foreground">Text alerts are available to managers only.</p>;
@@ -311,10 +341,58 @@ function AlertsPage() {
               )}
             </div>
             {clocks.data && clocks.data.needsBadge.length > 0 && (
-              <p className="text-sm text-muted-foreground">
-                {clocks.data.needsBadge.length} staff member(s) still need a clock-in number and PIN
-                — set those on their profile before go-live.
-              </p>
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground">
+                  {clocks.data.needsBadge.length} staff member(s) still need a clock-in number and
+                  PIN before they can punch at a wall clock:
+                </p>
+                {clocks.data.needsBadge.map((e) => {
+                  const draft = draftFor(e.id);
+                  return (
+                    <div
+                      key={e.id}
+                      className="flex flex-wrap items-center gap-2 rounded-lg border p-3"
+                    >
+                      <span className="min-w-32 font-medium">{e.name}</span>
+                      <Input
+                        placeholder="Clock-in number"
+                        className="h-9 w-36"
+                        value={draft.number}
+                        onChange={(ev) => setDraft(e.id, { number: ev.target.value })}
+                      />
+                      <Input
+                        placeholder="PIN (4 digits)"
+                        inputMode="numeric"
+                        maxLength={6}
+                        className="h-9 w-28"
+                        value={draft.pin}
+                        onChange={(ev) => setDraft(e.id, { pin: ev.target.value })}
+                      />
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setDraft(e.id, { pin: randomPin() })}
+                      >
+                        Generate PIN
+                      </Button>
+                      <Button
+                        size="sm"
+                        disabled={!draft.number || !draft.pin || badgeMutation.isPending}
+                        onClick={() =>
+                          badgeMutation.mutate({
+                            employeeId: e.id,
+                            clockInNumber: draft.number,
+                            pin: draft.pin,
+                          })
+                        }
+                      >
+                        Save
+                      </Button>
+                    </div>
+                  );
+                })}
+              </div>
             )}
           </CardContent>
         </Card>

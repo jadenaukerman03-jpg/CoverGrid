@@ -114,7 +114,7 @@ const MANAGER_NAV: NavGroup[] = [
     items: [
       { to: "/messages", label: "Messages" },
       { to: "/notifications", label: "Notifications" },
-      { to: "/alerts", label: "Text alerts" },
+      { to: "/alerts", label: "Alerts & time clocks" },
       { to: "/requests", label: "Requests" },
       { to: "/automation", label: "Automation" },
       { to: "/integrations", label: "Integrations" },

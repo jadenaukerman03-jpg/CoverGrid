@@ -26,6 +26,8 @@ export const IMPORT_TEMPLATES: Record<
       "hourly_rate",
       "email",
       "phone",
+      "clock_in_number",
+      "pin",
     ],
     sample: [
       "Jane Miller",
@@ -37,8 +39,10 @@ export const IMPORT_TEMPLATES: Record<
       "18.50",
       "jane@example.com",
       "555-0100",
+      "1042",
+      "3391",
     ],
-    help: "One row per employee. Position must be nurse, qma or cna. Shift must be first, second or third. Unit is matched by name.",
+    help: "One row per employee. Position must be nurse, qma or cna. Shift must be first, second or third. Unit is matched by name. clock_in_number and pin are optional — set them here to skip assigning wall-clock credentials one at a time later.",
   },
   schedule: {
     headers: ["full_name", "date", "shift", "unit", "position"],
@@ -212,6 +216,10 @@ export async function runImportAction(
       }
       const unitId = unitByName.get((row["unit"] ?? "").toLowerCase()) ?? null;
       const shift = normalizeShift(row["shift"] ?? "") ?? "first";
+      const pin = (row["pin"] ?? "").trim();
+      if (pin && !/^\d{4,6}$/.test(pin)) {
+        errors.push(`Row ${i + 2}: pin must be 4 to 6 digits — left blank instead.`);
+      }
       if (input.apply) {
         const { error } = await db.from("employees").insert({
           full_name: name,
@@ -224,6 +232,8 @@ export async function runImportAction(
           hourly_rate: Number(row["hourly_rate"] || 0) || 0,
           email: row["email"] || null,
           phone: row["phone"] || null,
+          ...(row["clock_in_number"] ? { clock_in_number: row["clock_in_number"] } : {}),
+          ...(/^\d{4,6}$/.test(pin) ? { punch_pin: pin } : {}),
         });
         if (error) {
           errors.push(`Row ${i + 2}: ${error.message}`);
